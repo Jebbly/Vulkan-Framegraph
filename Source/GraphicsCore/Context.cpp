@@ -30,6 +30,8 @@ Context::Context(std::shared_ptr<Window> window) :
 	}
 
 	CreateInstance();
+
+	device_ = std::make_shared<Device>(instance_);
 }
 
 void Context::RequestValidationLayers() {
@@ -40,7 +42,7 @@ void Context::RequestValidationLayers() {
 
 #ifndef NDEBUG
 	std::cout << "Available Validation Layers:" << std::endl;
-	for (VkLayerProperties& available_layer : available_validation_layers) {
+	for (const VkLayerProperties& available_layer : available_validation_layers) {
 		std::cout << "\t" << available_layer.layerName << std::endl;
 	}
 	std::cout << std::endl;

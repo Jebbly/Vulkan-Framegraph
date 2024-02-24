@@ -6,6 +6,7 @@
 
 #include <vulkan/vulkan.h>
 
+#include "Device.h"
 #include "Window.h"
 
 class Context {
@@ -15,6 +16,8 @@ public:
 private:
 	std::string app_name_;
 	VkInstance instance_;
+	
+	std::shared_ptr<Device> device_;
 	std::shared_ptr<Window> window_;
 
 	std::vector<std::string> requested_validation_layers_;

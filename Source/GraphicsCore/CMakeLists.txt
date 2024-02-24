@@ -1,7 +1,7 @@
 set(GRAPHICS_CORE_SRC
     Context.cpp
     Device.cpp
-    Util.cpp
+    Swapchain.cpp
     Window.cpp
 )
 
