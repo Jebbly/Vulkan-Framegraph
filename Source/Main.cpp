@@ -8,5 +8,6 @@ int main() {
     Context context{ window };
     
     while (!window->ShouldClose()) {
+        window->PollEvents();
     }
 }

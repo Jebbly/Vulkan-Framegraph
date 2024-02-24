@@ -1,5 +1,8 @@
 #include "Window.h"
 
+#include <assert.h>
+#include <iostream>
+
 static void GLFWErrorCallback(int error, const char* description) {
     std::cerr << "GLFW Error: " << description << std::endl;
 }
@@ -45,4 +48,8 @@ std::vector<std::string> Window::GetRequiredInstanceExtensions() const {
         required_extensions.emplace_back(required_glfw_extensions[i]);
     }
     return required_extensions;
+}
+
+void Window::PollEvents() const {
+    glfwPollEvents();
 }

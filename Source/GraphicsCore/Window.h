@@ -1,7 +1,5 @@
 #pragma once
 
-#include <assert.h>
-#include <iostream>
 #include <string>
 #include <vector>
 
@@ -17,8 +15,9 @@ public:
     bool ShouldClose() const;
     bool IsInitialized() const;
     const std::string& GetAppName() const;
-
     std::vector<std::string> GetRequiredInstanceExtensions() const;
+
+    void PollEvents() const;
 
 private:
     GLFWwindow* window_;
