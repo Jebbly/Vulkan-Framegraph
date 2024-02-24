@@ -11,21 +11,21 @@
 
 class Context {
 public:
-	Context(std::shared_ptr<Window> window);
+    Context(std::shared_ptr<Window> window);
 
 private:
-	std::string app_name_;
-	VkInstance instance_;
-	
-	std::shared_ptr<Device> device_;
-	std::shared_ptr<Window> window_;
+    std::string app_name_;
+    VkInstance instance_;
+    
+    std::shared_ptr<Device> device_;
+    std::shared_ptr<Window> window_;
 
-	std::vector<std::string> requested_validation_layers_;
-	std::vector<const char*> enabled_validation_layers_;
-	std::vector<std::string> requested_instance_extensions_;
-	std::vector<const char*> enabled_instance_extensions_;
+    std::vector<std::string> requested_validation_layers_;
+    std::vector<const char*> enabled_validation_layers_;
+    std::vector<std::string> requested_instance_extensions_;
+    std::vector<const char*> enabled_instance_extensions_;
 
-	void RequestValidationLayers();
-	void RequestInstanceExtensions();
-	void CreateInstance();
+    void RequestValidationLayers();
+    void RequestInstanceExtensions();
+    void CreateInstance();
 };
