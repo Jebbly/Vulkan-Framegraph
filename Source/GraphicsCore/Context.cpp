@@ -1,14 +1,36 @@
 #include "Context.h"
 
-Context::Context(const std::string& app_name) :
-	app_name_{ app_name }
+Context::Context(std::shared_ptr<Window> window) :
+	window_{ window }
 {
+	assert(window_->IsInitialized());
+
+	// Request validation layers and instance extensions for instance creation.
+	requested_validation_layers_.push_back("VK_LAYER_KHRONOS_validation");
+
+	requested_instance_extensions_.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
+
+	// The window may also come with platform specific dependencies,
+	// although some of which might already be requested.
+	// This technically isn't necessary, but it helps for logging.
+	std::vector<std::string> required_window_extensions = window_->GetRequiredInstanceExtensions();
+	for (const std::string& window_extension : required_window_extensions) {
+		bool already_requested = false;
+
+		for (const std::string& requested_extension : requested_instance_extensions_) {
+			if (window_extension == requested_extension) {
+				already_requested = true;
+				break;
+			}
+		}
+
+		if (!already_requested) {
+			requested_instance_extensions_.push_back(window_extension);
+		}
+	}
+
 	CreateInstance();
 }
-
-std::vector<std::string> requested_validation_layers = {
-		"VK_LAYER_KHRONOS_validation",
-};
 
 void Context::RequestValidationLayers() {
 	uint32_t num_validation_layers = 0;
@@ -26,7 +48,7 @@ void Context::RequestValidationLayers() {
 
 	// Check that requested validation layers are available.
 	// TODO: only check for layers that are optional.
-	for (const std::string& requested_layer: requested_validation_layers) {
+	for (const std::string& requested_layer: requested_validation_layers_) {
 		const char* requested_layer_name = requested_layer.c_str();
 
 		bool found_requested_layer = false;
@@ -52,10 +74,6 @@ void Context::RequestValidationLayers() {
 #endif
 }
 
-std::vector<std::string> requested_instance_extensions = {
-		VK_KHR_SURFACE_EXTENSION_NAME,
-};
-
 void Context::RequestInstanceExtensions() {
 	uint32_t num_instance_extensions = 0;
 	vkEnumerateInstanceExtensionProperties(nullptr, &num_instance_extensions, nullptr);
@@ -72,7 +90,7 @@ void Context::RequestInstanceExtensions() {
 	
 	// Check that requested instance extensions are available.
 	// TODO: only check for extensions that are optional.
-	for (const std::string& requested_extension : requested_instance_extensions) {
+	for (const std::string& requested_extension : requested_instance_extensions_) {
 		const char* requested_extension_name = requested_extension.c_str();
 
 		bool found_requested_extension = false;
@@ -101,7 +119,7 @@ void Context::RequestInstanceExtensions() {
 void Context::CreateInstance() {
 	VkApplicationInfo app_info = {
 		.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
-		.pApplicationName = app_name_.c_str(),
+		.pApplicationName = window_->GetAppName().c_str(),
 		.apiVersion = VK_HEADER_VERSION_COMPLETE,
 	};
 
