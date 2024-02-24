@@ -14,9 +14,6 @@ public:
 	Window(const std::string& window_name, size_t width, size_t height);
 	~Window();
 
-	void Init();
-	void Destroy();
-
 	bool ShouldClose() const;
 	bool IsInitialized() const;
 	const std::string& GetAppName() const;

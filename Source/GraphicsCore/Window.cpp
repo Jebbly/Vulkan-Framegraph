@@ -11,12 +11,6 @@ Window::Window(const std::string& window_name, size_t width, size_t height) :
 	height_{ height },
 	initialized_ {false}
 {
-	Init();
-}
-
-void Window::Init() {
-	assert(window_ == nullptr);
-
 	glfwSetErrorCallback(GLFWErrorCallback);
 
 	glfwInit();
@@ -26,14 +20,8 @@ void Window::Init() {
 }
 
 Window::~Window() {
-	Destroy();
-}
-
-void Window::Destroy() {
-	if (window_ != nullptr) {
-		glfwDestroyWindow(window_);
-		initialized_ = false;
-	}
+	glfwDestroyWindow(window_);
+	initialized_ = false;
 }
 
 bool Window::ShouldClose() const {
