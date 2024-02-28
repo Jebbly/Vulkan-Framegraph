@@ -11,3 +11,8 @@ target_include_directories(glm INTERFACE GLM)
 # Slang
 add_library(slang INTERFACE)
 target_include_directories(slang INTERFACE Slang)
+
+# VulkanMemoryAllocator
+option(VMA_BUILD_DOCUMENTATION OFF)
+option(VMA_BUILD_SAMPLES OFF)
+add_subdirectory(VulkanMemoryAllocator)

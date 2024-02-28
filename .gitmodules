@@ -4,3 +4,6 @@
 [submodule "External/GLM"]
 	path = External/GLM
 	url = https://github.com/g-truc/glm.git
+[submodule "External/VulkanMemoryAllocator"]
+	path = External/VulkanMemoryAllocator
+	url = https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
