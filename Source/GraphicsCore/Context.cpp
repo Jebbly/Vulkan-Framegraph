@@ -3,15 +3,17 @@
 #include <assert.h>
 #include <iostream>
 
-Context::Context(std::shared_ptr<Window> window) :
-    window_{ window }
+Context::Context(const std::string& app_name, size_t width, size_t height) :
+    app_name_{ app_name }
 {
-    assert(window_->IsInitialized());
+    window_ = std::make_shared<Window>(app_name, width, height);
 
     // Request validation layers and instance extensions for instance creation.
-    requested_validation_layers_.push_back("VK_LAYER_KHRONOS_validation");
+    std::vector<std::string> requested_validation_layers;
+    requested_validation_layers.push_back("VK_LAYER_KHRONOS_validation");
 
-    requested_instance_extensions_.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
+    std::vector<std::string> requested_instance_extensions;
+    requested_instance_extensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
 
     // The window may also come with platform specific dependencies,
     // although some of which might already be requested.
@@ -20,7 +22,7 @@ Context::Context(std::shared_ptr<Window> window) :
     for (const std::string& window_extension : required_window_extensions) {
         bool already_requested = false;
 
-        for (const std::string& requested_extension : requested_instance_extensions_) {
+        for (const std::string& requested_extension : requested_instance_extensions) {
             if (window_extension == requested_extension) {
                 already_requested = true;
                 break;
@@ -28,128 +30,20 @@ Context::Context(std::shared_ptr<Window> window) :
         }
 
         if (!already_requested) {
-            requested_instance_extensions_.push_back(window_extension);
+            requested_instance_extensions.push_back(window_extension);
         }
     }
 
-    CreateInstance();
+    instance_ = std::make_shared<Instance>(app_name_, requested_validation_layers, requested_instance_extensions);
 
-    surface_ = window_->CreateSurface(instance_);
+    // Here, we create a temporary surface to query for device capabilities.
+    // However, the actual surface is created in the swapchain constructor.
+    // TODO: handle this better? The issue with passing the instance to window creation
+    // is that the instance already relies on the window to query for extensions,
+    // so there is currently a circular dependency between the two classes.
+    VkSurfaceKHR surface = window_->CreateSurface(instance_->GetInstance());
+    device_ = std::make_shared<Device>(instance_, surface);
+    vkDestroySurfaceKHR(instance_->GetInstance(), surface, nullptr);
 
-    device_ = std::make_shared<Device>(instance_, surface_);
-
-    swapchain_ = std::make_shared<Swapchain>(device_, window_, surface_);
-}
-
-Context::~Context() {
-    vkDestroySurfaceKHR(instance_, surface_, nullptr);
-    vkDestroyInstance(instance_, nullptr);
-}
-
-void Context::RequestValidationLayers() {
-    uint32_t num_validation_layers = 0;
-    vkEnumerateInstanceLayerProperties(&num_validation_layers, nullptr);
-    std::vector<VkLayerProperties> available_validation_layers(num_validation_layers);
-    vkEnumerateInstanceLayerProperties(&num_validation_layers, available_validation_layers.data());
-
-#ifndef NDEBUG
-    std::cout << "Available Validation Layers:" << std::endl;
-    for (const VkLayerProperties& available_layer : available_validation_layers) {
-        std::cout << "\t" << available_layer.layerName << std::endl;
-    }
-    std::cout << std::endl;
-#endif
-
-    // Check that requested validation layers are available.
-    // TODO: only check for layers that are optional.
-    for (const std::string& requested_layer: requested_validation_layers_) {
-        const char* requested_layer_name = requested_layer.c_str();
-
-        bool found_requested_layer = false;
-        for (const VkLayerProperties& available_layer : available_validation_layers) {
-            if (strcmp(requested_layer_name, available_layer.layerName) == 0) {
-                enabled_validation_layers_.emplace_back(requested_layer_name);
-                found_requested_layer = true;
-                break;
-            }
-        }
-
-        if (!found_requested_layer) {
-            throw std::runtime_error("Validation layer not available: " + requested_layer);
-        }
-    }
-
-#ifndef NDEBUG
-    std::cout << "Enabled Validation Layers: " << std::endl;
-    for (const char* enabled_layer : enabled_validation_layers_) {
-        std::cout << "\t" << enabled_layer << std::endl;
-    }
-    std::cout << std::endl;
-#endif
-}
-
-void Context::RequestInstanceExtensions() {
-    uint32_t num_instance_extensions = 0;
-    vkEnumerateInstanceExtensionProperties(nullptr, &num_instance_extensions, nullptr);
-    std::vector<VkExtensionProperties> available_extensions(num_instance_extensions);
-    vkEnumerateInstanceExtensionProperties(nullptr, &num_instance_extensions, available_extensions.data());
-
-#ifndef NDEBUG
-    std::cout << "Available Instance Extensions:" << std::endl;
-    for (const VkExtensionProperties& available_extension : available_extensions) {
-        std::cout << "\t" << available_extension.extensionName << std::endl;
-    }
-    std::cout << std::endl;
-#endif
-    
-    // Check that requested instance extensions are available.
-    // TODO: only check for extensions that are optional.
-    for (const std::string& requested_extension : requested_instance_extensions_) {
-        const char* requested_extension_name = requested_extension.c_str();
-
-        bool found_requested_extension = false;
-        for (const VkExtensionProperties& available_extension : available_extensions) {
-            if (strcmp(requested_extension_name, available_extension.extensionName) == 0) {
-                enabled_instance_extensions_.emplace_back(requested_extension_name);
-                found_requested_extension = true;
-                break;
-            }
-        }
-
-        if (!found_requested_extension) {
-            throw std::runtime_error("Instance extension not available: " + requested_extension);
-        }
-    }
-
-#ifndef NDEBUG
-    std::cout << "Enabled Instance Extensions: " << std::endl;
-    for (const char* enabled_extension : enabled_instance_extensions_) {
-        std::cout << "\t" << enabled_extension << std::endl;
-    }
-    std::cout << std::endl;
-#endif
-}
-
-void Context::CreateInstance() {
-    VkApplicationInfo app_info = {
-        .sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
-        .pApplicationName = window_->GetAppName().c_str(),
-        .apiVersion = VK_HEADER_VERSION_COMPLETE,
-    };
-
-    RequestValidationLayers();
-    RequestInstanceExtensions();
-
-    VkInstanceCreateInfo instance_info = {
-        .sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
-        .pApplicationInfo = &app_info,
-        .enabledLayerCount = static_cast<uint32_t>(enabled_validation_layers_.size()),
-        .ppEnabledLayerNames = enabled_validation_layers_.data(),
-        .enabledExtensionCount = static_cast<uint32_t>(enabled_instance_extensions_.size()),
-        .ppEnabledExtensionNames = enabled_instance_extensions_.data(),
-    };
-
-    if (vkCreateInstance(&instance_info, nullptr, &instance_) != VK_SUCCESS) {
-        throw std::runtime_error("Failed to create Vulkan instance");
-    }
+    swapchain_ = std::make_shared<Swapchain>(instance_, device_, window_);
 }

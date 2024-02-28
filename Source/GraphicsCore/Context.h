@@ -7,29 +7,23 @@
 #include <vulkan/vulkan.h>
 
 #include "Device.h"
+#include "Instance.h"
 #include "Swapchain.h"
 #include "Window.h"
 
 class Context {
 public:
-    Context(std::shared_ptr<Window> window);
-    ~Context();
+    Context(const std::string& app_name, size_t width, size_t height);
+    ~Context() = default; 
+
+    std::shared_ptr<Window> GetWindow() {return window_;}
 
 private:
     std::string app_name_;
-    VkInstance instance_;
-    VkSurfaceKHR surface_;
     
+    // Note: order is important here for order of destruction
+    std::shared_ptr<Window> window_;
+    std::shared_ptr<Instance> instance_;
     std::shared_ptr<Device> device_;
     std::shared_ptr<Swapchain> swapchain_;
-    std::shared_ptr<Window> window_;
-
-    std::vector<std::string> requested_validation_layers_;
-    std::vector<const char*> enabled_validation_layers_;
-    std::vector<std::string> requested_instance_extensions_;
-    std::vector<const char*> enabled_instance_extensions_;
-
-    void RequestValidationLayers();
-    void RequestInstanceExtensions();
-    void CreateInstance();
 };

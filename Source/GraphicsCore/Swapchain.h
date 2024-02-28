@@ -6,17 +6,19 @@
 #include <vulkan/vulkan.h>
 
 #include "Device.h"
+#include "Instance.h"
 #include "Window.h"
 
 class Swapchain {
 public:
-    Swapchain(std::shared_ptr<Device> device, std::shared_ptr<Window> window, const VkSurfaceKHR& surface);
+    Swapchain(std::shared_ptr<Instance> instance, std::shared_ptr<Device> device, std::shared_ptr<Window> window);
     ~Swapchain();
 
 private:
-    std::shared_ptr<Device> device_; 
+    std::shared_ptr<Instance> instance_;
+    std::shared_ptr<Device> device_;
     std::shared_ptr<Window> window_;
-    const VkSurfaceKHR& surface_;
+    VkSurfaceKHR surface_;
 
     VkSwapchainKHR swapchain_;
     std::vector<VkImage> images_;

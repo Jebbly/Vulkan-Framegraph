@@ -6,7 +6,7 @@
 #include <map>
 #include <optional>
 
-Device::Device(const VkInstance instance, const VkSurfaceKHR surface) :
+Device::Device(std::shared_ptr<Instance> instance, const VkSurfaceKHR surface) :
     instance_{ instance },
     device_features_{ }
 {
@@ -30,10 +30,10 @@ Device::~Device() {
 
 void Device::SelectPhysicalDevice() {
     uint32_t num_physical_devices = 0;
-    vkEnumeratePhysicalDevices(instance_, &num_physical_devices, nullptr);
+    vkEnumeratePhysicalDevices(instance_->GetInstance(), &num_physical_devices, nullptr);
     assert(num_physical_devices > 0);
     std::vector<VkPhysicalDevice> available_physical_devices(num_physical_devices);
-    vkEnumeratePhysicalDevices(instance_, &num_physical_devices, available_physical_devices.data());
+    vkEnumeratePhysicalDevices(instance_->GetInstance(), &num_physical_devices, available_physical_devices.data());
 
     physical_device_ = available_physical_devices[0];
 

@@ -4,8 +4,8 @@
 #include "GraphicsCore/Context.h"
 
 int main() {
-    std::shared_ptr<Window> window = std::make_shared<Window>("Vulkan Rendergraph", 1600, 900);
-    Context context{ window };
+    Context context{ "Vulkan Rendergraph", 1600, 900 };
+    std::shared_ptr<Window> window = context.GetWindow();
     
     while (!window->ShouldClose()) {
         window->PollEvents();

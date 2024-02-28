@@ -1,14 +1,17 @@
 #pragma once
 
 #include <cassert>
+#include <memory>
 #include <string>
 #include <vector>
 
 #include <vulkan/vulkan.h>
 
+#include "Instance.h"
+
 class Device {
 public:
-    Device(const VkInstance instance, const VkSurfaceKHR surface);
+    Device(std::shared_ptr<Instance> instance, const VkSurfaceKHR surface);
     ~Device();
 
     enum QueueType {
@@ -34,7 +37,8 @@ public:
     }
 
 private:
-    const VkInstance instance_;
+    std::shared_ptr<Instance> instance_;
+
     VkDevice logical_device_;
     VkPhysicalDevice physical_device_;
 

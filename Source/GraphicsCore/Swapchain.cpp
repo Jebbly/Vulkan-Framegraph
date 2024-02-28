@@ -5,11 +5,13 @@
 #include <limits>
 #include <stdexcept>
 
-Swapchain::Swapchain(std::shared_ptr<Device> device, std::shared_ptr<Window> window, const VkSurfaceKHR& surface) :
+Swapchain::Swapchain(std::shared_ptr<Instance> instance, std::shared_ptr<Device> device, std::shared_ptr<Window> window) :
+    instance_{ instance },
     device_{ device },
-    window_{ window },
-    surface_{ surface }
+    window_{ window }
 {
+    surface_ = window_->CreateSurface(instance_->GetInstance());
+
     GetCapabilities();
     ChooseFormat();
     ChooseExtent();
@@ -19,7 +21,8 @@ Swapchain::Swapchain(std::shared_ptr<Device> device, std::shared_ptr<Window> win
 
 Swapchain::~Swapchain()
 {
-    
+    vkDestroySwapchainKHR(device_->GetLogicalDevice(), swapchain_, nullptr);
+    vkDestroySurfaceKHR(instance_->GetInstance(), surface_, nullptr);
 }
 
 void Swapchain::GetCapabilities() {
