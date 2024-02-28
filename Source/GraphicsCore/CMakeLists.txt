@@ -5,6 +5,7 @@ set(GRAPHICS_CORE_SRC
     Device.cpp
     Instance.cpp
     Swapchain.cpp
+    Synchronization.cpp
     Window.cpp
 )
 
