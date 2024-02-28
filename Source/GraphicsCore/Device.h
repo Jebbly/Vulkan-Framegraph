@@ -1,6 +1,6 @@
 #pragma once
 
-#include <optional>
+#include <cassert>
 #include <string>
 #include <vector>
 
@@ -8,7 +8,7 @@
 
 class Device {
 public:
-    Device(const VkInstance instance);
+    Device(const VkInstance instance, const VkSurfaceKHR surface);
     ~Device();
 
     enum QueueType {
@@ -26,6 +26,13 @@ public:
         VkQueue queue;
     };
 
+    inline const VkDevice& GetLogicalDevice() const {return logical_device_;}
+    inline const VkPhysicalDevice& GetPhysicalDevice() const {return physical_device_;}
+    inline const Queue& GetQueue(QueueType queue_type) const {
+        assert(queue_type < QueueType::MAX_QUEUE_TYPES);
+        return queues_[queue_type];
+    }
+
 private:
     const VkInstance instance_;
     VkDevice logical_device_;
@@ -39,6 +46,6 @@ private:
 
     void SelectPhysicalDevice();
     void RequestDeviceExtensions();
-    void FindQueueFamilies();
+    void FindQueueFamilies(const VkSurfaceKHR surface);
     void CreateLogicalDeviceAndQueues();
 };

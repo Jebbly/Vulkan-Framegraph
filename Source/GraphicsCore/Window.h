@@ -16,8 +16,11 @@ public:
     bool IsInitialized() const;
     const std::string& GetAppName() const;
     std::vector<std::string> GetRequiredInstanceExtensions() const;
+    VkExtent2D GetFramebufferSize() const;
 
     void PollEvents() const;
+
+    VkSurfaceKHR CreateSurface(VkInstance instance) const;
 
 private:
     GLFWwindow* window_;

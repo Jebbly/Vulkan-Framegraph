@@ -24,6 +24,7 @@ Window::Window(const std::string& window_name, size_t width, size_t height) :
 
 Window::~Window() {
     glfwDestroyWindow(window_);
+    glfwTerminate();
     initialized_ = false;
 }
 
@@ -48,6 +49,23 @@ std::vector<std::string> Window::GetRequiredInstanceExtensions() const {
         required_extensions.emplace_back(required_glfw_extensions[i]);
     }
     return required_extensions;
+}
+
+VkExtent2D Window::GetFramebufferSize() const {
+    int width, height;
+    glfwGetFramebufferSize(window_, &width, &height);
+    return VkExtent2D{
+        .width = static_cast<uint32_t>(width), 
+        .height = static_cast<uint32_t>(height)
+    };
+}
+
+VkSurfaceKHR Window::CreateSurface(VkInstance instance) const {
+    VkSurfaceKHR surface;
+    if (glfwCreateWindowSurface(instance, window_, nullptr, &surface) != VK_SUCCESS) {
+        throw std::runtime_error("Failed to create window surface!");
+    }
+    return surface;
 }
 
 void Window::PollEvents() const {

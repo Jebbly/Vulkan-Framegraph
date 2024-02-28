@@ -1,5 +1,8 @@
 #include "Context.h"
 
+#include <assert.h>
+#include <iostream>
+
 Context::Context(std::shared_ptr<Window> window) :
     window_{ window }
 {
@@ -31,7 +34,16 @@ Context::Context(std::shared_ptr<Window> window) :
 
     CreateInstance();
 
-    device_ = std::make_shared<Device>(instance_);
+    surface_ = window_->CreateSurface(instance_);
+
+    device_ = std::make_shared<Device>(instance_, surface_);
+
+    swapchain_ = std::make_shared<Swapchain>(device_, window_, surface_);
+}
+
+Context::~Context() {
+    vkDestroySurfaceKHR(instance_, surface_, nullptr);
+    vkDestroyInstance(instance_, nullptr);
 }
 
 void Context::RequestValidationLayers() {

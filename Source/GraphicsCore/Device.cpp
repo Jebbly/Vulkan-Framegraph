@@ -4,9 +4,9 @@
 #include <functional>
 #include <iostream>
 #include <map>
-#include <vector>
+#include <optional>
 
-Device::Device(const VkInstance instance) :
+Device::Device(const VkInstance instance, const VkSurfaceKHR surface) :
     instance_{ instance },
     device_features_{ }
 {
@@ -17,7 +17,7 @@ Device::Device(const VkInstance instance) :
 
     SelectPhysicalDevice();
     RequestDeviceExtensions();
-    FindQueueFamilies();
+    FindQueueFamilies(surface);
     CreateLogicalDeviceAndQueues();
 }
 
@@ -107,7 +107,7 @@ void Device::RequestDeviceExtensions() {
 #endif
 }
 
-void Device::FindQueueFamilies() {
+void Device::FindQueueFamilies(const VkSurfaceKHR surface) {
     uint32_t num_queue_families = 0;
     vkGetPhysicalDeviceQueueFamilyProperties(physical_device_, &num_queue_families, nullptr);
     std::vector<VkQueueFamilyProperties> available_queue_families(num_queue_families);
@@ -129,8 +129,10 @@ void Device::FindQueueFamilies() {
 
     // Prefer a queue family has supports both graphics and present queues
     auto supports_graphics_present =
-        [](const VkQueueFamilyProperties& candidate_queue_family, uint32_t queue_family_index) {
-            return (candidate_queue_family.queueFlags & VK_QUEUE_GRAPHICS_BIT) != 0;
+        [&](const VkQueueFamilyProperties& candidate_queue_family, uint32_t queue_family_index) {
+            VkBool32 supports_present = false;
+            vkGetPhysicalDeviceSurfaceSupportKHR(physical_device_, queue_family_index, surface, &supports_present);
+            return ((candidate_queue_family.queueFlags & VK_QUEUE_GRAPHICS_BIT) != 0) && supports_present;
         };
 
     auto graphics_present_family = search(supports_graphics_present);
