@@ -8,6 +8,8 @@
 
 Device::Device(std::shared_ptr<Instance> instance, const VkSurfaceKHR surface) :
     instance_{ instance },
+    logical_device_{ VK_NULL_HANDLE },
+    physical_device_{ VK_NULL_HANDLE },
     device_features_{ }
 {
     // Request device extensions and features

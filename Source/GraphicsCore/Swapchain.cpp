@@ -8,10 +8,10 @@
 Swapchain::Swapchain(std::shared_ptr<Instance> instance, std::shared_ptr<Device> device, std::shared_ptr<Window> window) :
     instance_{ instance },
     device_{ device },
-    window_{ window }
+    window_{ window },
+    swapchain_{ VK_NULL_HANDLE },
+    surface_{ window_->CreateSurface(instance_->GetInstance()) }
 {
-    surface_ = window_->CreateSurface(instance_->GetInstance());
-
     GetCapabilities();
     ChooseFormat();
     ChooseExtent();

@@ -36,6 +36,11 @@ public:
         return queues_[queue_type];
     }
 
+    inline void WaitIdle() const {
+        assert(logical_device_ != VK_NULL_HANDLE);
+        vkDeviceWaitIdle(logical_device_);
+    }
+
 private:
     std::shared_ptr<Instance> instance_;
 
