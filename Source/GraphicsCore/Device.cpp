@@ -14,6 +14,7 @@ Device::Device(std::shared_ptr<Instance> instance, const VkSurfaceKHR surface) :
 {
     // Request device extensions and features
     requested_device_extensions_.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+    requested_device_extensions_.push_back(VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME);
 
     device_features_.samplerAnisotropy = VK_TRUE;
 
@@ -236,6 +237,15 @@ void Device::CreateLogicalDeviceAndQueues() {
         .ppEnabledExtensionNames = enabled_device_extensions_.data(),
         .pEnabledFeatures = &device_features_,
     };
+
+    // TODO: handle this better
+    VkPhysicalDeviceSynchronization2Features sync_features = {
+        .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SYNCHRONIZATION_2_FEATURES,
+        .synchronization2 = VK_TRUE,
+    };
+
+    device_info.pNext = &sync_features;
+
 
     if (vkCreateDevice(physical_device_, &device_info, nullptr, &logical_device_) != VK_SUCCESS) {
         throw std::runtime_error("Failed to create logical device");

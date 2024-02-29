@@ -1,11 +1,16 @@
 #include "Command.h"
 
+#include <iostream>
 #include <stdexcept>
 
 CommandBuffer::CommandBuffer(VkCommandBuffer command_buffer, const Device::Queue& queue) :
     queue_{ queue },
     command_buffer_{ command_buffer }
 {}
+
+void CommandBuffer::Reset() {
+    vkResetCommandBuffer(command_buffer_, 0);
+}
 
 void CommandBuffer::Begin(bool use_once) {
     VkCommandBufferBeginInfo begin_info = {
@@ -25,18 +30,60 @@ void CommandBuffer::Record(std::function<void(VkCommandBuffer)> commands) {
     commands(command_buffer_);
 }
 
-void CommandBuffer::Submit() {
-    vkEndCommandBuffer(command_buffer_);
+void CommandBuffer::End() {
+    if (vkEndCommandBuffer(command_buffer_) != VK_SUCCESS) {
+        throw std::runtime_error("Failed to begin command buffer!");
+    }
+}
 
-    VkSubmitInfo submit_info = {
-        .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
-        .commandBufferCount = 1,
-        .pCommandBuffers = &command_buffer_,
+void CommandBuffer::Submit(Fence* fence) {
+    VkCommandBufferSubmitInfo command_submit_info = {
+        .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO,
+        .commandBuffer = command_buffer_,
+        .deviceMask = 0,
     };
 
-    if (vkQueueSubmit(queue_.queue, 1, &submit_info, VK_NULL_HANDLE) != VK_SUCCESS) {
+    VkSubmitInfo2 submit_info = {
+        .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO_2,
+        .waitSemaphoreInfoCount = static_cast<uint32_t>(wait_semaphores_.size()),
+        .pWaitSemaphoreInfos = wait_semaphores_.data(),
+        .commandBufferInfoCount = 1,
+        .pCommandBufferInfos = &command_submit_info,
+        .signalSemaphoreInfoCount = static_cast<uint32_t>(signal_semaphores_.size()),
+        .pSignalSemaphoreInfos = signal_semaphores_.data(),
+    };
+
+    if (vkQueueSubmit2(queue_.queue, 1, &submit_info, (fence == nullptr) ? VK_NULL_HANDLE : fence->GetFence()) != VK_SUCCESS) {
         throw std::runtime_error("Failed to submit command buffer!");
     }
+}
+
+void CommandBuffer::InsertBarrier(Barrier& barrier) {
+    // TODO: implement this
+}
+
+void CommandBuffer::InsertWaitSemaphore(Semaphore& semaphore, VkPipelineStageFlags stage_mask) {
+    VkSemaphoreSubmitInfo semaphore_info = {
+        .sType = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO,
+        .semaphore = semaphore.GetSemaphore(),
+        .value = 1,
+        .stageMask = stage_mask,
+        .deviceIndex = 0,
+    };
+
+    wait_semaphores_.push_back(semaphore_info);
+}
+
+void CommandBuffer::InsertSignalSemaphore(Semaphore& semaphore, VkPipelineStageFlags stage_mask) {
+    VkSemaphoreSubmitInfo semaphore_info = {
+        .sType = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO,
+        .semaphore = semaphore.GetSemaphore(),
+        .value = 1,
+        .stageMask = stage_mask,
+        .deviceIndex = 0,
+    };
+
+    signal_semaphores_.push_back(semaphore_info);
 }
 
 CommandPool::CommandPool(std::shared_ptr<Device> device, Device::QueueType queue_type) :

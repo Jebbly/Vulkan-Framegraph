@@ -21,8 +21,33 @@ Swapchain::Swapchain(std::shared_ptr<Instance> instance, std::shared_ptr<Device>
 
 Swapchain::~Swapchain()
 {
+    for (uint32_t i = 0; i < image_views_.size(); i++) {
+        vkDestroyImageView(device_->GetLogicalDevice(), image_views_[i], nullptr);
+    }
+
     vkDestroySwapchainKHR(device_->GetLogicalDevice(), swapchain_, nullptr);
     vkDestroySurfaceKHR(instance_->GetInstance(), surface_, nullptr);
+}
+
+uint32_t Swapchain::AcquireNextImage(const Semaphore& present_semaphore) {
+    uint32_t image_index;
+    vkAcquireNextImageKHR(device_->GetLogicalDevice(), swapchain_, 1000000000, present_semaphore.GetSemaphore(), nullptr, &image_index);
+    return image_index;
+}
+
+void Swapchain::Present(uint32_t image_index, const Semaphore& wait_semaphore) {
+    VkPresentInfoKHR present_info = {
+        .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
+        .waitSemaphoreCount = 1,
+        .pWaitSemaphores = &wait_semaphore.GetSemaphore(),
+        .swapchainCount = 1,
+        .pSwapchains = &swapchain_,
+        .pImageIndices = &image_index,
+    };
+
+    if (vkQueuePresentKHR(device_->GetQueue(Device::QueueType::GRAPHICS).queue, &present_info) != VK_SUCCESS) {
+        throw std::runtime_error("Failed to present swapchain image!");
+    }
 }
 
 void Swapchain::GetCapabilities() {
@@ -69,7 +94,7 @@ void Swapchain::CreateSwapchain() {
         .imageColorSpace = surface_format_.colorSpace,
         .imageExtent = surface_extent_,
         .imageArrayLayers = 1,
-        .imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+        .imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
         .preTransform = capabilities_.currentTransform,
         .compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
         .presentMode = VK_PRESENT_MODE_FIFO_KHR,
@@ -100,4 +125,35 @@ void Swapchain::GetSwapchainImages() {
     vkGetSwapchainImagesKHR(device_->GetLogicalDevice(), swapchain_, &num_images, nullptr);
     images_.resize(num_images);
     vkGetSwapchainImagesKHR(device_->GetLogicalDevice(), swapchain_, &num_images, images_.data());
+
+    image_views_.resize(num_images);
+    for (uint32_t i = 0; i < num_images; i++) {
+        VkComponentMapping default_mapping = {
+            .r = VK_COMPONENT_SWIZZLE_IDENTITY,
+            .g = VK_COMPONENT_SWIZZLE_IDENTITY,
+            .b = VK_COMPONENT_SWIZZLE_IDENTITY,
+            .a = VK_COMPONENT_SWIZZLE_IDENTITY,
+        };
+
+        VkImageSubresourceRange range = {
+            .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+            .baseMipLevel = 0,
+            .levelCount = 1,
+            .baseArrayLayer = 0,
+            .layerCount = 1,
+        };
+
+        VkImageViewCreateInfo view_info = {
+            .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+            .image = images_[i],
+            .viewType = VK_IMAGE_VIEW_TYPE_2D,
+            .format = surface_format_.format,
+            .components = default_mapping,
+            .subresourceRange = range,
+        };
+
+        if (vkCreateImageView(device_->GetLogicalDevice(), &view_info, nullptr, &image_views_[i]) != VK_SUCCESS) {
+            throw std::runtime_error("Failed to create image view!");
+        }
+    }
 }

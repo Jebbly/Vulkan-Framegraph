@@ -6,18 +6,29 @@
 #include <vulkan/vulkan.h>
 
 #include "Device.h"
+#include "Synchronization.h"
 
 class CommandBuffer {
 public:
     CommandBuffer(VkCommandBuffer command_buffer, const Device::Queue& queue);
 
+    void Reset();
+
     void Begin(bool use_once);
     void Record(std::function<void (VkCommandBuffer)> commands);
-    void Submit();
+    void End();
+    void Submit(Fence* fence = nullptr);
+
+    void InsertBarrier(Barrier& barrier);
+    void InsertWaitSemaphore(Semaphore& semaphore, VkPipelineStageFlags stage_mask);
+    void InsertSignalSemaphore(Semaphore& semaphore, VkPipelineStageFlags stage_mask);
 
 private:
     const Device::Queue& queue_;
     VkCommandBuffer command_buffer_;
+
+    std::vector<VkSemaphoreSubmitInfo> wait_semaphores_;
+    std::vector<VkSemaphoreSubmitInfo> signal_semaphores_;
 };
 
 class CommandPool {

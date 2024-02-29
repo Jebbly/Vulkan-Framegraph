@@ -5,7 +5,6 @@
 
 #include <vulkan/vulkan.h>
 
-#include "Command.h"
 #include "Device.h"
 
 class Barrier {
@@ -30,6 +29,8 @@ public:
 
     void Wait(uint64_t ns) const;
     void Reset();
+
+    const VkFence& GetFence() const {return fence_;}
 
 private:
     std::shared_ptr<Device> device_;

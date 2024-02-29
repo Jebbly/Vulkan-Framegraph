@@ -17,6 +17,9 @@ public:
     ~Context() = default; 
 
     std::shared_ptr<Window> GetWindow() {return window_;}
+    std::shared_ptr<Instance> GetInstance() {return instance_;}
+    std::shared_ptr<Device> GetDevice() {return device_;}
+    std::shared_ptr<Swapchain> GetSwapchain() {return swapchain_;}
 
 private:
     std::string app_name_;
