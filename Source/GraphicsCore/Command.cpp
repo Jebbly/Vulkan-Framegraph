@@ -10,6 +10,9 @@ CommandBuffer::CommandBuffer(VkCommandBuffer command_buffer, const Device::Queue
 
 void CommandBuffer::Reset() {
     vkResetCommandBuffer(command_buffer_, 0);
+
+    wait_semaphores_.clear();
+    signal_semaphores_.clear();
 }
 
 void CommandBuffer::Begin(bool use_once) {

@@ -11,7 +11,6 @@ Fence::Fence(std::shared_ptr<Device> device, bool start_signaled) :
 }
 
 Fence::~Fence() {
-    std::cout << "Destroying fence" << std::endl;
     vkDestroyFence(device_->GetLogicalDevice(), fence_, nullptr);
 }
 
@@ -41,7 +40,6 @@ Semaphore::Semaphore(std::shared_ptr<Device> device) :
 }
 
 Semaphore::~Semaphore() {
-    std::cout << "Destroying semaphore" << std::endl;
     vkDestroySemaphore(device_->GetLogicalDevice(), semaphore_, nullptr);
 }
 

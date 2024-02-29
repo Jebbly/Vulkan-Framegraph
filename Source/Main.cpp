@@ -61,11 +61,11 @@ int main() {
         render_fence.Wait(1000000000);
         render_fence.Reset();
 
-        main_command.Reset();
-        main_command.Begin(true);
-
         uint32_t swapchain_index = context.GetSwapchain()->AcquireNextImage(image_available_semaphore);
         const VkImage& swapchain_image = context.GetSwapchain()->GetImage(swapchain_index);
+
+        main_command.Reset();
+        main_command.Begin(true);
 
         main_command.Record([&](VkCommandBuffer command) {
             TransitionImage(command, swapchain_image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL);

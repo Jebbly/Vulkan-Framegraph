@@ -252,6 +252,12 @@ void Device::CreateLogicalDeviceAndQueues() {
     }
 
     // Get the actual queue indices
+    Queue& graphics_queue = queues_[QueueType::GRAPHICS];
+    vkGetDeviceQueue(logical_device_, graphics_queue.queue_family, graphics_queue.queue_index, &graphics_queue.queue);
+
+    Queue& present_queue = queues_[QueueType::PRESENT];
+    vkGetDeviceQueue(logical_device_, graphics_queue.queue_family, graphics_queue.queue_index, &present_queue.queue);
+    
     for (int queue_type = 0; queue_type < QueueType::MAX_QUEUE_TYPES; queue_type++) {
         Queue& queue = queues_[static_cast<uint32_t>(queue_type)];
         vkGetDeviceQueue(logical_device_, queue.queue_family, queue.queue_index, &queue.queue);

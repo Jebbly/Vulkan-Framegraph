@@ -45,7 +45,7 @@ void Swapchain::Present(uint32_t image_index, const Semaphore& wait_semaphore) {
         .pImageIndices = &image_index,
     };
 
-    if (vkQueuePresentKHR(device_->GetQueue(Device::QueueType::GRAPHICS).queue, &present_info) != VK_SUCCESS) {
+    if (vkQueuePresentKHR(device_->GetQueue(Device::QueueType::PRESENT).queue, &present_info) != VK_SUCCESS) {
         throw std::runtime_error("Failed to present swapchain image!");
     }
 }
