@@ -5,22 +5,8 @@
 
 #include <vulkan/vulkan.h>
 
+#include "Command.h"
 #include "Device.h"
-
-class Barrier {
-public:
-    Barrier();
-    ~Barrier() = default;
-
-    void AddMemoryBarrier();
-    void AddBufferMemoryBarrier();
-    void AddImageMemoryBarrier();
-
-private:
-    std::vector<VkMemoryBarrier> memory_barriers_;
-    std::vector<VkBufferMemoryBarrier> buffer_barriers_;
-    std::vector<VkImageMemoryBarrier> image_barriers_;
-};
 
 class Fence {
 public:

@@ -61,10 +61,6 @@ void CommandBuffer::Submit(Fence* fence) {
     }
 }
 
-void CommandBuffer::InsertBarrier(Barrier& barrier) {
-    // TODO: implement this
-}
-
 void CommandBuffer::InsertWaitSemaphore(Semaphore& semaphore, VkPipelineStageFlags stage_mask) {
     VkSemaphoreSubmitInfo semaphore_info = {
         .sType = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO,

@@ -19,7 +19,6 @@ public:
     void End();
     void Submit(Fence* fence = nullptr);
 
-    void InsertBarrier(Barrier& barrier);
     void InsertWaitSemaphore(Semaphore& semaphore, VkPipelineStageFlags stage_mask);
     void InsertSignalSemaphore(Semaphore& semaphore, VkPipelineStageFlags stage_mask);
 
