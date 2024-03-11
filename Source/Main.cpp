@@ -3,7 +3,7 @@
 #include "GraphicsCore/Window.h"
 #include "GraphicsCore/Command.h"
 #include "GraphicsCore/Context.h"
-#include "GraphicsCore/Image.h"
+#include "GraphicsCore/Resource.h"
 #include "GraphicsCore/Synchronization.h"
 
 int main() {
@@ -24,14 +24,14 @@ int main() {
         render_fence.Reset();
 
         uint32_t swapchain_index = context.GetSwapchain()->AcquireNextImage(image_available_semaphore);
-        const VkImage& swapchain_image = context.GetSwapchain()->GetImage(swapchain_index);
+        const Image& swapchain_image = context.GetSwapchain()->GetImage(swapchain_index);
 
         main_command.Reset();
         main_command.Begin(true);
 
-        main_command.Record([&](VkCommandBuffer command) {
-            TransitionImage(command, swapchain_image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL);
+        swapchain_image.TransitionImage(main_command, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL);
 
+        main_command.Record([&](VkCommandBuffer command) {
             VkClearValue clear_value = {
                 .color = { 0.0f, 0.0f, 0.0f, 1.0f },
             };
@@ -44,10 +44,10 @@ int main() {
                 .layerCount = VK_REMAINING_ARRAY_LAYERS,
             };
 
-            vkCmdClearColorImage(command, swapchain_image, VK_IMAGE_LAYOUT_GENERAL, &clear_value.color, 1, &clear_range);
-
-            TransitionImage(command, swapchain_image, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+            vkCmdClearColorImage(command, swapchain_image.GetImage(), VK_IMAGE_LAYOUT_GENERAL, &clear_value.color, 1, &clear_range);
         });
+
+        swapchain_image.TransitionImage(main_command, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
 
         main_command.End();
 

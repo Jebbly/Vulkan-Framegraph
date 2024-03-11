@@ -4,10 +4,9 @@
 
 #include <vk_mem_alloc.h>
 
-#include "Buffer.h"
 #include "Device.h"
-#include "Image.h"
 #include "Instance.h"
+#include "Resource.h"
 
 class Allocator {
 public:

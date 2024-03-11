@@ -7,6 +7,7 @@
 
 #include "Device.h"
 #include "Instance.h"
+#include "Resource.h"
 #include "Synchronization.h"
 #include "Window.h"
 
@@ -18,7 +19,7 @@ public:
     uint32_t AcquireNextImage(const Semaphore& present_semaphore);
     void Present(uint32_t image_index, const Semaphore& wait_semaphore);
 
-    const VkImage& GetImage(uint32_t image_index) const {return images_.at(image_index);}
+    const Image& GetImage(uint32_t image_index) const {return images_.at(image_index);}
 
 private:
     std::shared_ptr<Instance> instance_;
@@ -27,7 +28,7 @@ private:
     VkSurfaceKHR surface_;
 
     VkSwapchainKHR swapchain_;
-    std::vector<VkImage> images_;
+    std::vector<Image> images_;
     std::vector<VkImageView> image_views_;
     VkSurfaceCapabilitiesKHR capabilities_;
     VkSurfaceFormatKHR surface_format_;

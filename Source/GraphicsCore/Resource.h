@@ -12,21 +12,17 @@ private:
 
 class Image {
 public:
-    Image(std::shared_ptr<Device> device, VkImage image, VkImageUsageFlags usage);
-    ~Image();
+    Image(VkImage image, VkImageUsageFlags usage);
+    ~Image() = default; // TODO: fix this
 
     inline const VkImage& GetImage() const {return image_;}
-    inline VkImageLayout getLayout() const {return layout_;}
     inline VkImageUsageFlags GetUsageFlags() const {return usage_;}
 
-    inline void ResetLayout(VkImageLayout layout) {layout_ = layout;}
-    void TransitionLayout(CommandBuffer& command_buffer, VkImageLayout new_layout);
+    void TransitionImage(CommandBuffer command_buffer, VkImageLayout old_layout, VkImageLayout new_layout) const;
 
 private:
     VkImage image_;
-    VkImageLayout layout_;
     VkImageUsageFlags usage_;
-
 };
 
 class ResourceBarrier {
@@ -41,13 +37,9 @@ public:
     ~ResourceBarrier() = default;
 
     void AddMemoryBarrier(AccessInfo source, AccessInfo destination);
-    void AddBufferMemoryBarrier(AccessInfo source, AccessInfo destination,
-        uint32_t src_queue_family, uint32_t dst_queue_family,
-        Buffer buffer);
+    void AddBufferMemoryBarrier(AccessInfo source, AccessInfo destination, Buffer buffer);
     void AddImageMemoryBarrier(AccessInfo source, AccessInfo destination,
-        VkImageLayout old_layout, VkImageLayout new_layout,
-        uint32_t src_queue_family, uint32_t dst_queue_family,
-        Image image);
+        VkImageLayout old_layout, VkImageLayout new_layout, Image image, VkImageSubresourceRange range);
 
     void InsertIntoCommandBuffer(CommandBuffer command_buffer);
 

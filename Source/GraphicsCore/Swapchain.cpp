@@ -123,8 +123,12 @@ void Swapchain::CreateSwapchain() {
 void Swapchain::GetSwapchainImages() {
     uint32_t num_images = 0;
     vkGetSwapchainImagesKHR(device_->GetLogicalDevice(), swapchain_, &num_images, nullptr);
-    images_.resize(num_images);
-    vkGetSwapchainImagesKHR(device_->GetLogicalDevice(), swapchain_, &num_images, images_.data());
+    std::vector<VkImage> vulkan_images(num_images);
+    vkGetSwapchainImagesKHR(device_->GetLogicalDevice(), swapchain_, &num_images, vulkan_images.data());
+
+    for (VkImage& vulkan_image : vulkan_images) {
+        images_.emplace_back(vulkan_image, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT);
+    }
 
     image_views_.resize(num_images);
     for (uint32_t i = 0; i < num_images; i++) {
@@ -145,7 +149,7 @@ void Swapchain::GetSwapchainImages() {
 
         VkImageViewCreateInfo view_info = {
             .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
-            .image = images_[i],
+            .image = images_[i].GetImage(),
             .viewType = VK_IMAGE_VIEW_TYPE_2D,
             .format = surface_format_.format,
             .components = default_mapping,

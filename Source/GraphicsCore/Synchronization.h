@@ -5,7 +5,6 @@
 
 #include <vulkan/vulkan.h>
 
-#include "Command.h"
 #include "Device.h"
 
 class Fence {
