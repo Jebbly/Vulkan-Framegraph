@@ -1,10 +1,9 @@
 set(GRAPHICS_CORE_SRC
-    Allocator.cpp
     Command.cpp
     Context.cpp
     Device.cpp
     Instance.cpp
-    Resource.cpp
+    Resources.cpp
     Swapchain.cpp
     Synchronization.cpp
     Window.cpp

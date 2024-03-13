@@ -1,4 +1,85 @@
-#include "Resource.h"
+#include "Resources.h"
+
+#define VMA_IMPLEMENTATION
+#include <vk_mem_alloc.h>
+
+Allocator::Allocator(std::shared_ptr<Instance> instance, std::shared_ptr<Device> device) :
+    instance_{ instance },
+    device_{ device },
+    allocator_{ }
+{
+    CreateAllocator();
+}
+
+Allocator::~Allocator() {
+    vmaDestroyAllocator(allocator_);
+}
+
+std::shared_ptr<Buffer> Allocator::AllocateBuffer(Buffer::Desc& buffer_desc, ResourceDesc resource_desc) {
+    VkBufferCreateInfo buffer_info = {
+        .sType  = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
+        .size = buffer_desc.buffer_size,
+        .usage = buffer_desc.buffer_usage,
+    };
+
+    if (!resource_desc.queue_families.empty()) {
+        buffer_info.sharingMode = resource_desc.sharing_mode;
+        buffer_info.queueFamilyIndexCount = static_cast<uint32_t>(resource_desc.queue_families.size());
+        buffer_info.pQueueFamilyIndices = resource_desc.queue_families.data();
+    }
+
+    VmaAllocationCreateInfo alloc_create_info = {
+        .usage = resource_desc.memory_usage,
+        .requiredFlags = resource_desc.allocation_flags,
+    };
+
+    std::shared_ptr<Buffer> new_buffer = std::make_shared<Buffer>(buffer_desc);
+    vmaCreateBuffer(allocator_, &buffer_info, &alloc_create_info, &new_buffer->buffer_, &new_buffer->allocation_, nullptr);
+    return new_buffer;
+}
+
+std::shared_ptr<Image> Allocator::AllocateImage(Image::Desc& image_desc, ResourceDesc resource_desc) {
+    VkImageCreateInfo image_info = {
+        .sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
+        .imageType = VK_IMAGE_TYPE_2D,
+        .format = image_desc.image_format,
+        .extent = image_desc.image_format,
+        .mipLevels = 1,
+        .arrayLayers = 1,
+        .samples = VK_SAMPLE_COUNT_1_BIT,
+        .tiling = VK_IMAGE_TILING_OPTIMAL,
+        .usage = image_desc.image_usage,
+    };
+
+    if (!resource_desc.queue_families.empty()) {
+        image_info.sharingMode = resource_desc.sharing_mode;
+        image_info.queueFamilyIndexCount = static_cast<uint32_t>(resource_desc.queue_families.size());
+        image_info.pQueueFamilyIndices = resource_desc.queue_families.data();
+    }
+
+    VmaAllocationCreateInfo alloc_create_info = {
+        .usage = resource_desc.memory_usage,
+        .requiredFlags = resource_desc.allocation_flags,
+    };
+
+    std::shared_ptr<Image> new_image = std::make_shared<Image>(image_desc);
+    vmaCreateImage(allocator_, &image_info, &alloc_create_info, &new_image->image_, &new_image->allocation_, nullptr);
+    return new_image;
+}
+
+void Allocator::CreateAllocator() {
+    VmaAllocatorCreateInfo allocator_info = {
+        .flags = VMA_ALLOCATOR_CREATE_EXT_MEMORY_BUDGET_BIT,
+        .physicalDevice = device_->GetPhysicalDevice(),
+        .device = device_->GetLogicalDevice(),
+        .instance = instance_->GetInstance(),
+        .vulkanApiVersion = VK_HEADER_VERSION_COMPLETE,
+    };
+
+    if (vmaCreateAllocator(&allocator_info, &allocator_) != VK_SUCCESS) {
+        throw std::runtime_error("Failed to create VMA allocator!");
+    }
+}
 
 Image::Image(VkImage image, VkImageUsageFlags usage) :
     image_{ image },
