@@ -18,7 +18,7 @@ public:
     DescriptorSet(std::shared_ptr<Device> device, std::shared_ptr<DescriptorSetLayout> set_layout);
 
     void WriteBufferDescriptor(uint32_t binding, VkDescriptorType type, Buffer buffer, uint32_t offset, uint32_t range);
-    void WriteImageDescriptor(uint32_t binding, VkDescriptorType type, ImageView image_view, Sampler sampler);
+    void WriteImageDescriptor(uint32_t binding, VkDescriptorType type, ImageView image_view, Sampler sampler, VkImageLayout layout);
 
     void Update();
 
