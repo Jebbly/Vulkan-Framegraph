@@ -8,7 +8,7 @@ DescriptorSet::DescriptorSet(std::shared_ptr<Device> device, std::shared_ptr<Des
 void DescriptorSet::WriteBufferDescriptor(uint32_t binding, VkDescriptorType type, Buffer buffer, uint32_t offset, uint32_t range) {
     assert(type == set_layout_->GetType(binding));
 
-    VkDescriptorBufferInfo& buffer_info = buffer_infos.emplace_back(
+    VkDescriptorBufferInfo& buffer_info = buffer_infos_.emplace_back(
         VkDescriptorBufferInfo {
             .buffer = buffer.GetBuffer(),
             .offset = offset,
