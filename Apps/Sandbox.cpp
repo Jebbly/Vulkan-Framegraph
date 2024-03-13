@@ -3,7 +3,7 @@
 #include "GraphicsCore/Window.h"
 #include "GraphicsCore/Command.h"
 #include "GraphicsCore/Context.h"
-#include "GraphicsCore/Resource.h"
+#include "GraphicsCore/Resources.h"
 #include "GraphicsCore/Synchronization.h"
 
 int main() {
