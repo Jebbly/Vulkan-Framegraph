@@ -6,13 +6,6 @@
 #include "Command.h"
 #include "Synchronization.h"
 
-struct ResourceDesc {
-    VmaAllocationCreateFlags allocation_flags;
-    VmaMemoryUsage memory_usage;
-    VkSharingMode sharing_mode;
-    std::vector<uint32_t> queue_families;
-};
-
 class Buffer {
 public:
     struct Desc {
@@ -22,8 +15,8 @@ public:
 
     friend class Allocator;
 
-    Buffer(VkBuffer buffer, Desc description);
-    ~Buffer();
+    Buffer(Desc desc);
+    ~Buffer() = default;
 
     VkBuffer GetBuffer() const {return buffer_;}
 
@@ -66,21 +59,19 @@ class ImageView {
 public:
     struct Lens {
         VkImageViewType view_type;
-        VkComponentMapping mapping;
+        VkComponentMapping component_map;
         VkImageSubresourceRange subresource_range;
     };
 
-    ImageView(std::shared_ptr<Device> device, std::shared_ptr<Image> image, ImageView::Lens view_lens);
+    ImageView(std::shared_ptr<Device> device, const Image& image, ImageView::Lens view_lens);
     ~ImageView();
 
     VkImageView GetImageView() const {return image_view_;}
 
 private:
     std::shared_ptr<Device> device_;
-    std::shared_ptr<Image> image_;
 
     VkImageView image_view_;
-    Image::Desc image_desc_;
 };
 
 // TODO: implement this
@@ -93,6 +84,13 @@ public:
 
 private:
     VkSampler sampler_;
+};
+
+struct ResourceDesc {
+    VmaAllocationCreateFlags allocation_flags;
+    VmaMemoryUsage memory_usage;
+    VkSharingMode sharing_mode;
+    std::vector<uint32_t> queue_families;
 };
 
 class Allocator {

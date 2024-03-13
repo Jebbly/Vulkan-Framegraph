@@ -7,7 +7,7 @@
 
 #include "Device.h"
 #include "Instance.h"
-#include "Resource.h"
+#include "Resources.h"
 #include "Synchronization.h"
 #include "Window.h"
 
@@ -29,7 +29,7 @@ private:
 
     VkSwapchainKHR swapchain_;
     std::vector<Image> images_;
-    std::vector<VkImageView> image_views_;
+    std::vector<ImageView> image_views_;
     VkSurfaceCapabilitiesKHR capabilities_;
     VkSurfaceFormatKHR surface_format_;
     VkExtent2D surface_extent_;

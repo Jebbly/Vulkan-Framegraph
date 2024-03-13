@@ -21,10 +21,6 @@ Swapchain::Swapchain(std::shared_ptr<Instance> instance, std::shared_ptr<Device>
 
 Swapchain::~Swapchain()
 {
-    for (uint32_t i = 0; i < image_views_.size(); i++) {
-        vkDestroyImageView(device_->GetLogicalDevice(), image_views_[i], nullptr);
-    }
-
     vkDestroySwapchainKHR(device_->GetLogicalDevice(), swapchain_, nullptr);
     vkDestroySurfaceKHR(instance_->GetInstance(), surface_, nullptr);
 }
@@ -130,7 +126,6 @@ void Swapchain::GetSwapchainImages() {
         images_.emplace_back(vulkan_image, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT);
     }
 
-    image_views_.resize(num_images);
     for (uint32_t i = 0; i < num_images; i++) {
         VkComponentMapping default_mapping = {
             .r = VK_COMPONENT_SWIZZLE_IDENTITY,
@@ -147,17 +142,12 @@ void Swapchain::GetSwapchainImages() {
             .layerCount = 1,
         };
 
-        VkImageViewCreateInfo view_info = {
-            .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
-            .image = images_[i].GetImage(),
-            .viewType = VK_IMAGE_VIEW_TYPE_2D,
-            .format = surface_format_.format,
-            .components = default_mapping,
-            .subresourceRange = range,
+        ImageView::Lens lens = {
+            .view_type = VK_IMAGE_VIEW_TYPE_2D,
+            .component_map = default_mapping,
+            .subresource_range = range,
         };
 
-        if (vkCreateImageView(device_->GetLogicalDevice(), &view_info, nullptr, &image_views_[i]) != VK_SUCCESS) {
-            throw std::runtime_error("Failed to create image view!");
-        }
+        image_views_.emplace_back(ImageView{device_, images_[i], lens});
     }
 }

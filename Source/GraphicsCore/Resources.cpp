@@ -43,7 +43,7 @@ std::shared_ptr<Image> Allocator::AllocateImage(Image::Desc& image_desc, Resourc
         .sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
         .imageType = VK_IMAGE_TYPE_2D,
         .format = image_desc.image_format,
-        .extent = image_desc.image_format,
+        .extent = image_desc.image_extent,
         .mipLevels = 1,
         .arrayLayers = 1,
         .samples = VK_SAMPLE_COUNT_1_BIT,
@@ -112,12 +112,20 @@ void Image::TransitionImage(CommandBuffer command_buffer, VkImageLayout old_layo
     transition_barrier.InsertIntoCommandBuffer(command_buffer);
 }
 
-ImageView::ImageView(std::shared_ptr<Device> device, std::shared_ptr<Image> image, ImageView::Lens view_lens) :
+ImageView::ImageView(std::shared_ptr<Device> device, const Image& image, ImageView::Lens view_lens) :
     device_{ device },
-    image_{ image },
     image_view_{ VK_NULL_HANDLE }
 {
-    // TODO: implement image view creation
+    VkImageViewCreateInfo image_view_info = {
+        .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+        .image = image.GetImage(),
+        .viewType = view_lens.view_type,
+        .format = image.GetImageDesc().image_format,
+        .components = view_lens.component_map,
+        .subresourceRange = view_lens.subresource_range,
+    };
+
+    vkCreateImageView(device_->GetLogicalDevice(), &image_view_info, nullptr, &image_view_);
 }
 
 ImageView::~ImageView() {
