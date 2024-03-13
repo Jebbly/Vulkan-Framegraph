@@ -112,6 +112,20 @@ void Image::TransitionImage(CommandBuffer command_buffer, VkImageLayout old_layo
     transition_barrier.InsertIntoCommandBuffer(command_buffer);
 }
 
+ImageView::ImageView(std::shared_ptr<Device> device, std::shared_ptr<Image> image, ImageView::Lens view_lens) :
+    device_{ device },
+    image_{ image },
+    image_view_{ VK_NULL_HANDLE }
+{
+    // TODO: implement image view creation
+}
+
+ImageView::~ImageView() {
+    if (image_view_ != VK_NULL_HANDLE) {
+        vkDestroyImageView(device_->GetLogicalDevice(), image_view_, nullptr);
+    }
+}
+
 ResourceBarrier::ResourceBarrier(VkDependencyFlags dependency_flags) :
     dependency_flags_{ dependency_flags }
 {}

@@ -23,6 +23,9 @@ public:
     friend class Allocator;
 
     Buffer(VkBuffer buffer, Desc description);
+    ~Buffer();
+
+    VkBuffer GetBuffer() const {return buffer_;}
 
 private:
     VkBuffer buffer_;
@@ -46,14 +49,14 @@ public:
     ~Image() = default; // TODO: fix this
 
     inline const VkImage& GetImage() const {return image_;}
+    inline const Desc& GetImageDesc() const {return image_desc_;}
     inline VkImageUsageFlags GetUsageFlags() const {return usage_;}
-
-    std::shared_ptr<ImageView> CreateView() const;
 
     void TransitionImage(CommandBuffer command_buffer, VkImageLayout old_layout, VkImageLayout new_layout) const;
 
 private:
     VkImage image_;
+    Desc image_desc_;
     VmaAllocation allocation_;
 
     VkImageUsageFlags usage_;
@@ -61,8 +64,35 @@ private:
 
 class ImageView {
 public:
+    struct Lens {
+        VkImageViewType view_type;
+        VkComponentMapping mapping;
+        VkImageSubresourceRange subresource_range;
+    };
+
+    ImageView(std::shared_ptr<Device> device, std::shared_ptr<Image> image, ImageView::Lens view_lens);
+    ~ImageView();
+
+    VkImageView GetImageView() const {return image_view_;}
 
 private:
+    std::shared_ptr<Device> device_;
+    std::shared_ptr<Image> image_;
+
+    VkImageView image_view_;
+    Image::Desc image_desc_;
+};
+
+// TODO: implement this
+class Sampler {
+public:
+    Sampler();
+    ~Sampler();
+
+    VkSampler GetSampler() const {return sampler_;}
+
+private:
+    VkSampler sampler_;
 };
 
 class Allocator {
