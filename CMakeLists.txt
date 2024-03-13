@@ -10,3 +10,4 @@ find_package(Vulkan REQUIRED)
 
 add_subdirectory(External)
 add_subdirectory(Source)
+add_subdirectory(Apps)
