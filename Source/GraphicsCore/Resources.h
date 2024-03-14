@@ -20,10 +20,16 @@ public:
 
     VkBuffer GetBuffer() const {return buffer_;}
 
+    void* MapToCPU();
+    void UnmapFromCPU();
+
 private:
     VkBuffer buffer_;
     Desc buffer_desc_;
     VmaAllocation allocation_;
+
+    VmaAllocator allocator_; // Needed for mapping
+    bool is_mapped_; // Can only map the memory once at a time.
 };
 
 class Image {

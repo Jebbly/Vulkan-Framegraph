@@ -38,6 +38,7 @@ std::shared_ptr<Buffer> Allocator::AllocateBuffer(Buffer::Desc& buffer_desc, Res
 
     std::shared_ptr<Buffer> new_buffer = std::make_shared<Buffer>(buffer_desc);
     vmaCreateBuffer(allocator_, &buffer_info, &alloc_create_info, &new_buffer->buffer_, &new_buffer->allocation_, nullptr);
+    new_buffer->allocator_ = allocator_;
     return new_buffer;
 }
 
@@ -87,8 +88,24 @@ void Allocator::CreateAllocator() {
 Buffer::Buffer(Buffer::Desc buffer_desc) :
     buffer_{ VK_NULL_HANDLE },
     buffer_desc_{ buffer_desc},
-    allocation_{ VMA_NULL }
+    allocation_{ VMA_NULL },
+    allocator_{ VMA_NULL },
+    is_mapped_{ false }
 {}
+
+void* Buffer::MapToCPU() {
+    assert(!is_mapped_);
+    void* data;
+    vmaMapMemory(allocator_, allocation_, &data);
+    is_mapped_ = true;
+    return data;
+}
+
+void Buffer::UnmapFromCPU() {
+    assert(is_mapped_);
+    vmaUnmapMemory(allocator_, allocation_);
+    is_mapped_ = false;
+}
 
 Image::Image(Image::Desc image_desc) :
     image_{ VK_NULL_HANDLE },
