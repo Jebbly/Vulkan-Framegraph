@@ -3,6 +3,7 @@ set(GRAPHICS_CORE_SRC
     Context.cpp
     Device.cpp
     Instance.cpp
+    Parameters.cpp
     Resources.cpp
     Shader.cpp
     Swapchain.cpp

@@ -11,27 +11,6 @@
 #include "Device.h"
 #include "Resources.h"
 
-class DescriptorSet {
-public:
-    friend class DescriptorPool;
-
-    DescriptorSet(std::shared_ptr<Device> device, std::shared_ptr<DescriptorSetLayout> set_layout);
-
-    void WriteBufferDescriptor(uint32_t binding, VkDescriptorType type, Buffer buffer, uint32_t offset, uint32_t range);
-    void WriteImageDescriptor(uint32_t binding, VkDescriptorType type, ImageView image_view, Sampler sampler, VkImageLayout layout);
-
-    void Update();
-
-private:
-    std::shared_ptr<Device> device_;
-    std::shared_ptr<DescriptorSetLayout> set_layout_;
-
-    VkDescriptorSet descriptor_set_;
-    std::deque<VkDescriptorBufferInfo> buffer_infos_;
-    std::deque<VkDescriptorImageInfo> image_infos_;
-    std::vector<VkWriteDescriptorSet> write_infos_;
-};
-
 class DescriptorSetLayout {
 public:
     struct BindingInfo {
@@ -58,16 +37,37 @@ private:
     VkDescriptorSetLayout set_layout_;
 };
 
+class DescriptorSet {
+public:
+    friend class DescriptorPool;
+
+    DescriptorSet(std::shared_ptr<Device> device, std::shared_ptr<DescriptorSetLayout> set_layout);
+
+    void WriteBufferDescriptor(uint32_t binding, VkDescriptorType type, Buffer buffer, uint32_t offset, uint32_t range);
+    void WriteImageDescriptor(uint32_t binding, VkDescriptorType type, ImageView image_view, Sampler sampler, VkImageLayout layout);
+
+    void Update();
+
+private:
+    std::shared_ptr<Device> device_;
+    std::shared_ptr<DescriptorSetLayout> set_layout_;
+
+    VkDescriptorSet descriptor_set_;
+    std::deque<VkDescriptorBufferInfo> buffer_infos_;
+    std::deque<VkDescriptorImageInfo> image_infos_;
+    std::vector<VkWriteDescriptorSet> write_infos_;
+};
+
 class DescriptorPool {
 public:
-    DescriptorPool(std::shared_ptr<Device> device, VkDescriptorPoolCreateFlagBits creation_flags);
+    DescriptorPool(std::shared_ptr<Device> device, VkDescriptorPoolCreateFlags creation_flags);
     ~DescriptorPool();
 
     std::shared_ptr<DescriptorSet> AllocateDescriptorSet(std::shared_ptr<DescriptorSetLayout> layout);
 
 private:
     std::shared_ptr<Device> device_;
-    VkDescriptorPoolCreateFlagBits creation_flags_;
+    VkDescriptorPoolCreateFlags creation_flags_;
     std::stack<VkDescriptorPool> descriptor_pools_;
     
     void CreateDescriptorPool();

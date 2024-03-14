@@ -1,4 +1,4 @@
-#include "Descriptors.h"
+#include "Parameters.h"
 
 DescriptorSet::DescriptorSet(std::shared_ptr<Device> device, std::shared_ptr<DescriptorSetLayout> set_layout) :
     device_{ device },
@@ -93,7 +93,7 @@ void DescriptorSetLayout::Compile() {
     is_compiled_ = true;
 }
 
-DescriptorPool::DescriptorPool(std::shared_ptr<Device> device, VkDescriptorPoolCreateFlagBits creation_flags) :
+DescriptorPool::DescriptorPool(std::shared_ptr<Device> device, VkDescriptorPoolCreateFlags creation_flags) :
     device_{ device },
     creation_flags_{ creation_flags }
 {
