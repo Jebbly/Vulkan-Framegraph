@@ -28,12 +28,12 @@ int main() {
         render_fence.Reset();
 
         uint32_t swapchain_index = context.GetSwapchain()->AcquireNextImage(image_available_semaphore);
-        const Image& swapchain_image = context.GetSwapchain()->GetImage(swapchain_index);
+        std::shared_ptr<Image> swapchain_image = context.GetSwapchain()->GetImage(swapchain_index);
 
         main_command.Reset();
         main_command.Begin(true);
 
-        swapchain_image.TransitionImage(main_command, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL);
+        swapchain_image->TransitionImage(main_command, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL);
 
         main_command.Record([&](VkCommandBuffer command) {
             VkClearValue clear_value = {
@@ -48,10 +48,10 @@ int main() {
                 .layerCount = VK_REMAINING_ARRAY_LAYERS,
             };
 
-            vkCmdClearColorImage(command, swapchain_image.GetImage(), VK_IMAGE_LAYOUT_GENERAL, &clear_value.color, 1, &clear_range);
+            vkCmdClearColorImage(command, swapchain_image->GetImage(), VK_IMAGE_LAYOUT_GENERAL, &clear_value.color, 1, &clear_range);
         });
 
-        swapchain_image.TransitionImage(main_command, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+        swapchain_image->TransitionImage(main_command, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
 
         main_command.End();
 

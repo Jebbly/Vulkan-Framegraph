@@ -61,7 +61,7 @@ public:
         VkImageSubresourceRange subresource_range;
     };
 
-    ImageView(std::shared_ptr<Device> device, const Image& image, ImageView::Lens view_lens);
+    ImageView(std::shared_ptr<Device> device, std::shared_ptr<Image> image, ImageView::Lens view_lens);
     ~ImageView();
 
     VkImageView GetImageView() const {return image_view_;}

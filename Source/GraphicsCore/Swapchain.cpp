@@ -141,7 +141,7 @@ void Swapchain::GetSwapchainImages() {
             .image_usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
         };
 
-        images_.emplace_back(vulkan_image, image_desc);
+        images_.push_back(std::make_shared<Image>(vulkan_image, image_desc));
     }
 
     for (uint32_t i = 0; i < num_images; i++) {
@@ -166,6 +166,6 @@ void Swapchain::GetSwapchainImages() {
             .subresource_range = range,
         };
 
-        image_views_.emplace_back(ImageView{device_, images_[i], lens});
+        image_views_.push_back(std::make_shared<ImageView>(device_, images_[i], lens));
     }
 }
