@@ -123,7 +123,19 @@ void Swapchain::GetSwapchainImages() {
     vkGetSwapchainImagesKHR(device_->GetLogicalDevice(), swapchain_, &num_images, vulkan_images.data());
 
     for (VkImage& vulkan_image : vulkan_images) {
-        images_.emplace_back(vulkan_image, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT);
+        VkExtent3D extent = {
+            .width = surface_extent_.width,
+            .height = surface_extent_.height,
+            .depth = 1,
+        };
+
+        Image::Desc image_desc = {
+            .image_extent = extent,
+            .image_format = surface_format_.format,
+            .image_usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
+        };
+
+        images_.emplace_back(vulkan_image, image_desc);
     }
 
     for (uint32_t i = 0; i < num_images; i++) {

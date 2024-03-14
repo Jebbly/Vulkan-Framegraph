@@ -81,9 +81,22 @@ void Allocator::CreateAllocator() {
     }
 }
 
-Image::Image(VkImage image, VkImageUsageFlags usage) :
+Buffer::Buffer(Buffer::Desc buffer_desc) :
+    buffer_{ VK_NULL_HANDLE },
+    buffer_desc_{ buffer_desc},
+    allocation_{ VMA_NULL }
+{}
+
+Image::Image(Image::Desc image_desc) :
+    image_{ VK_NULL_HANDLE },
+    image_desc_{ image_desc },
+    allocation_{ VMA_NULL }
+{}
+
+Image::Image(VkImage image, Image::Desc image_desc) :
     image_{ image },
-    usage_{ usage }
+    image_desc_{ image_desc },
+    allocation_{ VMA_NULL }
 {}
 
 void Image::TransitionImage(CommandBuffer command_buffer, VkImageLayout old_layout, VkImageLayout new_layout) const {

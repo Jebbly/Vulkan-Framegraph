@@ -15,13 +15,14 @@ public:
 
     friend class Allocator;
 
-    Buffer(Desc desc);
+    Buffer(Desc buffer_desc);
     ~Buffer() = default;
 
     VkBuffer GetBuffer() const {return buffer_;}
 
 private:
     VkBuffer buffer_;
+    Desc buffer_desc_;
     VmaAllocation allocation_;
 };
 
@@ -36,14 +37,13 @@ public:
     friend class Allocator;
     friend class ImageView;
 
-    Image(Desc desc);
+    Image(Desc image_desc);
     // This constructor should only be used to wrap images created directly from the swapchain
-    Image(VkImage image, VkImageUsageFlags usage);
+    Image(VkImage image, Desc image_desc);
     ~Image() = default; // TODO: fix this
 
     inline const VkImage& GetImage() const {return image_;}
     inline const Desc& GetImageDesc() const {return image_desc_;}
-    inline VkImageUsageFlags GetUsageFlags() const {return usage_;}
 
     void TransitionImage(CommandBuffer command_buffer, VkImageLayout old_layout, VkImageLayout new_layout) const;
 
@@ -51,8 +51,6 @@ private:
     VkImage image_;
     Desc image_desc_;
     VmaAllocation allocation_;
-
-    VkImageUsageFlags usage_;
 };
 
 class ImageView {
