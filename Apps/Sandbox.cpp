@@ -4,6 +4,7 @@
 #include "GraphicsCore/Command.h"
 #include "GraphicsCore/Context.h"
 #include "GraphicsCore/Resources.h"
+#include "GraphicsCore/Shader.h"
 #include "GraphicsCore/Synchronization.h"
 
 int main() {
@@ -16,6 +17,9 @@ int main() {
 
     CommandPool command_pool{context.GetDevice(), Device::QueueType::GRAPHICS};
     CommandBuffer main_command = command_pool.AllocateSinglePrimaryCommandBuffer();
+
+    ShaderCompiler compiler;
+    compiler.LoadShader("C:\\Users\\JeffL\\Desktop\\Personal-Projects\\Vulkan-Rendergraph\\Shaders\\HelloWorld.slang", "compute_main");
     
     while (!window->ShouldClose()) {
         window->PollEvents();
