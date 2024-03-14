@@ -21,8 +21,14 @@ Swapchain::Swapchain(std::shared_ptr<Instance> instance, std::shared_ptr<Device>
 
 Swapchain::~Swapchain()
 {
-    vkDestroySwapchainKHR(device_->GetLogicalDevice(), swapchain_, nullptr);
-    vkDestroySurfaceKHR(instance_->GetInstance(), surface_, nullptr);
+    if (swapchain_ != VK_NULL_HANDLE) {
+        vkDestroySwapchainKHR(device_->GetLogicalDevice(), swapchain_, nullptr);
+        swapchain_ = VK_NULL_HANDLE;
+    }
+    
+    if (surface_ != VK_NULL_HANDLE) {
+        vkDestroySurfaceKHR(instance_->GetInstance(), surface_, nullptr);
+    }
 }
 
 uint32_t Swapchain::AcquireNextImage(const Semaphore& present_semaphore) {

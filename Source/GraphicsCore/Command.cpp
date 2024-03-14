@@ -87,14 +87,18 @@ void CommandBuffer::InsertSignalSemaphore(Semaphore& semaphore, VkPipelineStageF
 
 CommandPool::CommandPool(std::shared_ptr<Device> device, Device::QueueType queue_type) :
     device_{ device },
-    queue_type_{ queue_type }
+    queue_type_{ queue_type },
+    command_pool_{ VK_NULL_HANDLE }
 {
     CreateCommandPool();
 }
 
 CommandPool::~CommandPool() {
-    device_->WaitIdle();
-    vkDestroyCommandPool(device_->GetLogicalDevice(), command_pool_, nullptr);
+    if (command_pool_ != VK_NULL_HANDLE) {
+        device_->WaitIdle();
+        vkDestroyCommandPool(device_->GetLogicalDevice(), command_pool_, nullptr);
+        command_pool_ = VK_NULL_HANDLE;
+    }
 }
 
 void CommandPool::CreateCommandPool() {

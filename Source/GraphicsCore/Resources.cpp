@@ -6,13 +6,16 @@
 Allocator::Allocator(std::shared_ptr<Instance> instance, std::shared_ptr<Device> device) :
     instance_{ instance },
     device_{ device },
-    allocator_{ }
+    allocator_{ VMA_NULL }
 {
     CreateAllocator();
 }
 
 Allocator::~Allocator() {
-    vmaDestroyAllocator(allocator_);
+    if (allocator_ != VMA_NULL) {
+        vmaDestroyAllocator(allocator_);
+        allocator_ = VMA_NULL;
+    }
 }
 
 std::shared_ptr<Buffer> Allocator::AllocateBuffer(Buffer::Desc& buffer_desc, ResourceDesc resource_desc) {
@@ -144,6 +147,7 @@ ImageView::ImageView(std::shared_ptr<Device> device, const Image& image, ImageVi
 ImageView::~ImageView() {
     if (image_view_ != VK_NULL_HANDLE) {
         vkDestroyImageView(device_->GetLogicalDevice(), image_view_, nullptr);
+        image_view_ = VK_NULL_HANDLE;
     }
 }
 

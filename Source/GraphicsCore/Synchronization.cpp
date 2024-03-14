@@ -11,7 +11,10 @@ Fence::Fence(std::shared_ptr<Device> device, bool start_signaled) :
 }
 
 Fence::~Fence() {
-    vkDestroyFence(device_->GetLogicalDevice(), fence_, nullptr);
+    if (fence_ != VK_NULL_HANDLE) {
+        vkDestroyFence(device_->GetLogicalDevice(), fence_, nullptr);
+        fence_ = VK_NULL_HANDLE;
+    }
 }
 
 void Fence::Wait(uint64_t ns) const {
@@ -40,7 +43,10 @@ Semaphore::Semaphore(std::shared_ptr<Device> device) :
 }
 
 Semaphore::~Semaphore() {
-    vkDestroySemaphore(device_->GetLogicalDevice(), semaphore_, nullptr);
+    if (semaphore_ != VK_NULL_HANDLE) {
+        vkDestroySemaphore(device_->GetLogicalDevice(), semaphore_, nullptr);
+        semaphore_ = VK_NULL_HANDLE;
+    }
 }
 
 void Semaphore::CreateSemaphore() {

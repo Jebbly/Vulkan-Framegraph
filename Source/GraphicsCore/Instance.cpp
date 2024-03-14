@@ -16,6 +16,7 @@ Instance::Instance(const std::string& app_name,
 Instance::~Instance() {
     if (instance_ != VK_NULL_HANDLE) {
         vkDestroyInstance(instance_, nullptr);
+        instance_ = VK_NULL_HANDLE;
     }
 }
 

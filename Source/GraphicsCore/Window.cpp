@@ -23,9 +23,15 @@ Window::Window(const std::string& window_name, size_t width, size_t height) :
 }
 
 Window::~Window() {
-    glfwDestroyWindow(window_);
-    glfwTerminate();
-    initialized_ = false;
+    if (window_ != nullptr) {
+        glfwDestroyWindow(window_);
+        window_ = nullptr;
+    }
+
+    if (initialized_) {
+        glfwTerminate();
+        initialized_ = false;
+    }
 }
 
 bool Window::ShouldClose() const {

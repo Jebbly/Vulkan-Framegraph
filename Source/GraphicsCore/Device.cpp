@@ -28,6 +28,7 @@ Device::~Device() {
     if (logical_device_ != VK_NULL_HANDLE) {
         vkDeviceWaitIdle(logical_device_);
         vkDestroyDevice(logical_device_, nullptr);
+        logical_device_ = VK_NULL_HANDLE;
     }
 }
 
