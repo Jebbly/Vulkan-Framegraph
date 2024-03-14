@@ -10,7 +10,6 @@ target_include_directories(glm INTERFACE GLM)
 
 # Slang
 option(SLANG_ENABLE_GFX OFF)
-option(SLANG_ENABLE_SLANGC OFF)
 option(SLANG_ENABLE_TESTS OFF)
 option(SLANG_ENABLE_EXAMPLES OFF)
 set(SLANG_LIB_TYPE STATIC)
