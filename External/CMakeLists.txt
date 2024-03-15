@@ -10,8 +10,11 @@ target_include_directories(glm INTERFACE GLM)
 
 # Slang
 option(SLANG_ENABLE_GFX OFF)
+option(SLANG_ENABLE_SLANGD OFF)
+option(SLANG_ENABLE_SLANGRT OFF)
 option(SLANG_ENABLE_TESTS OFF)
 option(SLANG_ENABLE_EXAMPLES OFF)
+set(SLANG_SLANG_LLVM_FLAVOR DISABLE)
 set(SLANG_LIB_TYPE STATIC)
 add_subdirectory(Slang)
 
