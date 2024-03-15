@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <string>
 #include <utility>
 #include <vector>
@@ -8,6 +9,11 @@
 #include <slang-com-ptr.h>
 
 class Shader {
+public:
+
+    
+
+private:
 
 };
 
@@ -16,7 +22,7 @@ public:
     ShaderCompiler();
     ~ShaderCompiler() = default;
     
-    Shader LoadShader(const std::string& shader_file, const std::string& entry_point_name);
+    std::shared_ptr<Shader> LoadShader(const std::string& shader_file, const std::string& entry_point_name);
 
 private:
    Slang::ComPtr<slang::IGlobalSession> global_session_;

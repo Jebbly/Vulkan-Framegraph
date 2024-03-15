@@ -19,7 +19,7 @@ int main() {
     CommandBuffer main_command = command_pool.AllocateSinglePrimaryCommandBuffer();
 
     ShaderCompiler compiler;
-    compiler.LoadShader("C:\\Users\\JeffL\\Desktop\\Personal-Projects\\Vulkan-Rendergraph\\Shaders\\HelloWorld.slang", "compute_main");
+    compiler.LoadShader("HelloWorld", "compute_main");
     
     while (!window->ShouldClose()) {
         window->PollEvents();
