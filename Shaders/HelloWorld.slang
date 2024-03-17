@@ -1,5 +1,4 @@
 struct Buffers {
-    float constant;
     StructuredBuffer<float> buffer0;
     StructuredBuffer<float> buffer1;
     RWStructuredBuffer<float> output;
@@ -12,5 +11,5 @@ ParameterBlock<Buffers> buffers;
 void compute_main(
     uint3 threadId: SV_DispatchThreadID) {
     uint index = threadId.x;
-    buffers.output[index] = buffers.buffer0[index] + buffers.buffer1[index] + buffers.constant;
+    buffers.output[index] = buffers.buffer0[index] + buffers.buffer1[index];
 }
