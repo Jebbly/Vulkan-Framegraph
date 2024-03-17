@@ -32,8 +32,8 @@ std::shared_ptr<Buffer> Allocator::AllocateBuffer(Buffer::Desc& buffer_desc, Res
     }
 
     VmaAllocationCreateInfo alloc_create_info = {
+        .flags = resource_desc.allocation_flags,
         .usage = resource_desc.memory_usage,
-        .requiredFlags = resource_desc.allocation_flags,
     };
 
     std::shared_ptr<Buffer> new_buffer = std::make_shared<Buffer>(buffer_desc);
@@ -92,6 +92,12 @@ Buffer::Buffer(Buffer::Desc buffer_desc) :
     allocator_{ VMA_NULL },
     is_mapped_{ false }
 {}
+
+Buffer::~Buffer() {
+    if (buffer_ != VK_NULL_HANDLE) {
+        vmaDestroyBuffer(allocator_, buffer_, allocation_);
+    }
+}
 
 void* Buffer::MapToCPU() {
     assert(!is_mapped_);

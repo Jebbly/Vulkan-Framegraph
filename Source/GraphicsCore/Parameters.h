@@ -18,7 +18,7 @@ public:
         VkShaderStageFlags stage_flags;
     };
 
-    DescriptorSetLayout(std::shared_ptr<Device> device, VkDescriptorSetLayoutCreateFlags creation_flags);
+    DescriptorSetLayout(std::shared_ptr<Device> device, VkDescriptorSetLayoutCreateFlags creation_flags = 0);
     ~DescriptorSetLayout();
 
     void AddBinding(BindingInfo binding);
@@ -43,10 +43,12 @@ public:
 
     DescriptorSet(std::shared_ptr<Device> device, std::shared_ptr<DescriptorSetLayout> set_layout);
 
-    void WriteBufferDescriptor(uint32_t binding, VkDescriptorType type, Buffer buffer, uint32_t offset, uint32_t range);
-    void WriteImageDescriptor(uint32_t binding, VkDescriptorType type, ImageView image_view, Sampler sampler, VkImageLayout layout);
+    void WriteBufferDescriptor(uint32_t binding, VkDescriptorType type, std::shared_ptr<Buffer> buffer, uint32_t offset, uint32_t range);
+    void WriteImageDescriptor(uint32_t binding, VkDescriptorType type, std::shared_ptr<ImageView> image_view, std::shared_ptr<Sampler> sampler, VkImageLayout layout);
 
     void Update();
+
+    inline VkDescriptorSet GetDescriptorSet() const {return descriptor_set_;}
 
 private:
     std::shared_ptr<Device> device_;
@@ -60,7 +62,7 @@ private:
 
 class DescriptorPool {
 public:
-    DescriptorPool(std::shared_ptr<Device> device, VkDescriptorPoolCreateFlags creation_flags);
+    DescriptorPool(std::shared_ptr<Device> device, VkDescriptorPoolCreateFlags creation_flags = 0);
     ~DescriptorPool();
 
     std::shared_ptr<DescriptorSet> AllocateDescriptorSet(std::shared_ptr<DescriptorSetLayout> layout);

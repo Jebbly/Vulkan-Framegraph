@@ -5,12 +5,12 @@ DescriptorSet::DescriptorSet(std::shared_ptr<Device> device, std::shared_ptr<Des
     set_layout_{ set_layout }
 {}
 
-void DescriptorSet::WriteBufferDescriptor(uint32_t binding, VkDescriptorType type, Buffer buffer, uint32_t offset, uint32_t range) {
+void DescriptorSet::WriteBufferDescriptor(uint32_t binding, VkDescriptorType type, std::shared_ptr<Buffer> buffer, uint32_t offset, uint32_t range) {
     assert(type == set_layout_->GetType(binding));
 
     VkDescriptorBufferInfo& buffer_info = buffer_infos_.emplace_back(
         VkDescriptorBufferInfo {
-            .buffer = buffer.GetBuffer(),
+            .buffer = buffer->GetBuffer(),
             .offset = offset,
             .range = range,
         }
@@ -28,13 +28,13 @@ void DescriptorSet::WriteBufferDescriptor(uint32_t binding, VkDescriptorType typ
     write_infos_.push_back(buffer_descriptor);
 }
 
-void DescriptorSet::WriteImageDescriptor(uint32_t binding, VkDescriptorType type, ImageView image_view, Sampler sampler, VkImageLayout layout) {
+void DescriptorSet::WriteImageDescriptor(uint32_t binding, VkDescriptorType type, std::shared_ptr<ImageView> image_view, std::shared_ptr<Sampler> sampler, VkImageLayout layout) {
     assert(type == set_layout_->GetType(binding));
 
     VkDescriptorImageInfo& image_info = image_infos_.emplace_back(
         VkDescriptorImageInfo {
-            .sampler = sampler.GetSampler(),
-            .imageView = image_view.GetImageView(),
+            .sampler = sampler->GetSampler(),
+            .imageView = image_view->GetImageView(),
             .imageLayout = layout,
         }
     );

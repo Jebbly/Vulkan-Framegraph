@@ -16,7 +16,7 @@ public:
     friend class Allocator;
 
     Buffer(Desc buffer_desc);
-    ~Buffer() = default;
+    ~Buffer();
 
     VkBuffer GetBuffer() const {return buffer_;}
 
