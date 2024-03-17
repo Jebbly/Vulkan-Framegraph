@@ -18,8 +18,12 @@ int main() {
     CommandPool command_pool{context.GetDevice(), Device::QueueType::GRAPHICS};
     CommandBuffer main_command = command_pool.AllocateSinglePrimaryCommandBuffer();
 
-    ShaderCompiler compiler;
+    ShaderCompiler compiler{context.GetDevice()};
+    std::cout << "Hello World: " << std::endl;
     compiler.LoadShader("HelloWorld", "compute_main");
+
+    std::cout << "\nHello World Test: " << std::endl;
+    compiler.LoadShader("HelloWorldTest", "compute_main");
     
     while (!window->ShouldClose()) {
         window->PollEvents();
