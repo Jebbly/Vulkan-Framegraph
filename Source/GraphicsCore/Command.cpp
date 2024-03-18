@@ -29,10 +29,6 @@ void CommandBuffer::Begin(bool use_once) {
     }
 }
 
-void CommandBuffer::Record(std::function<void(VkCommandBuffer)> commands) {
-    commands(command_buffer_);
-}
-
 void CommandBuffer::End() {
     if (vkEndCommandBuffer(command_buffer_) != VK_SUCCESS) {
         throw std::runtime_error("Failed to begin command buffer!");

@@ -1,6 +1,5 @@
 #pragma once
 
-#include <functional>
 #include <memory>
 
 #include <vulkan/vulkan.h>
@@ -15,7 +14,11 @@ public:
     void Reset();
 
     void Begin(bool use_once);
-    void Record(std::function<void (VkCommandBuffer)> commands);
+
+    template<typename T> void Record(T commands) {
+        commands(command_buffer_);
+    }
+
     void End();
     void Submit(Fence* fence = nullptr);
 
