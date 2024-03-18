@@ -31,5 +31,8 @@
 *.out
 *.app
 
+# Test GLSL files
+.glsl
+
 # Build Directory
 Build
