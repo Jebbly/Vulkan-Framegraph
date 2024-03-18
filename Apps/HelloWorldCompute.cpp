@@ -17,7 +17,7 @@ int main() {
     CommandBuffer main_command = command_pool.AllocateSinglePrimaryCommandBuffer();
 
     ShaderCompiler compiler{context.GetDevice()};
-    std::shared_ptr<Shader> compute_shader = compiler.LoadShader("HelloWorld", "compute_main");
+    std::shared_ptr<Shader> compute_shader = compiler.LoadShader("HelloWorldCompute", "compute_main");
     ComputePipeline compute_pipeline{context.GetDevice(), compute_shader};
     
     const uint32_t num_elements = 100;
