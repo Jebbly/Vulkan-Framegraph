@@ -68,7 +68,13 @@ public:
         VkFormat stencil_format = VK_FORMAT_UNDEFINED;
     };
 
-    GraphicsPipeline(std::shared_ptr<Device> device, std::shared_ptr<Shader> graphics_shaders, const AttachmentFormats& attachment_formats);
+    // This may include more in the future, e.g. geometry shaders.
+    struct ShaderStages {
+        std::shared_ptr<Shader> vertex_shader;
+        std::shared_ptr<Shader> fragment_shader;
+    };
+
+    GraphicsPipeline(std::shared_ptr<Device> device, ShaderStages shaders, const AttachmentFormats& attachment_formats);
     virtual ~GraphicsPipeline() = default;
 
     virtual inline VkPipelineBindPoint GetBindPoint() const override {return VK_PIPELINE_BIND_POINT_GRAPHICS;}
@@ -78,7 +84,7 @@ protected:
     virtual void CreatePipeline() override;
 
 private:
-    std::shared_ptr<Shader> graphics_shaders_;
+    ShaderStages shaders_;
     AttachmentFormats attachment_formats_;
 };
 

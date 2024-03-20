@@ -1,11 +1,32 @@
 #include "Pipeline.h"
 
-GraphicsPipeline::GraphicsPipeline(std::shared_ptr<Device> device, std::shared_ptr<Shader> graphics_shaders, const AttachmentFormats& attachment_formats) :
+GraphicsPipeline::GraphicsPipeline(std::shared_ptr<Device> device, ShaderStages shaders, const AttachmentFormats& attachment_formats) :
     Pipeline{ device },
-    graphics_shaders_{ graphics_shaders },
+    shaders_{ shaders },
     attachment_formats_{ attachment_formats }
 {
     Create();
+}
+
+void GraphicsPipeline::CreatePipelineLayout() {
+    std::vector<VkDescriptorSetLayout> descriptor_sets;
+    const auto& vertex_descriptor_sets = shaders_.vertex_shader->GetParameterLayouts();
+    for (const auto& descriptor_set : vertex_descriptor_sets) {
+        descriptor_sets.push_back(descriptor_set->GetLayout());
+    }
+
+    const auto& fragment_descriptor_sets = shaders_.fragment_shader->GetParameterLayouts();
+    for (const auto& descriptor_set : fragment_descriptor_sets) {
+        descriptor_sets.push_back(descriptor_set->GetLayout());
+    }
+
+    VkPipelineLayoutCreateInfo pipeline_layout_info = {
+        .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
+        .setLayoutCount = static_cast<uint32_t>(descriptor_sets.size()),
+        .pSetLayouts = descriptor_sets.data(),
+    };
+
+    vkCreatePipelineLayout(device_->GetLogicalDevice(), &pipeline_layout_info, nullptr, &pipeline_layout_);
 }
 
 void GraphicsPipeline::CreatePipeline() {
@@ -83,11 +104,30 @@ void GraphicsPipeline::CreatePipeline() {
         .stencilAttachmentFormat = attachment_formats_.stencil_format,
     };
 
+    std::vector<VkPipelineShaderStageCreateInfo> shader_stages;
+
+    VkPipelineShaderStageCreateInfo vertex_stage = {
+        .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+        .stage = VK_SHADER_STAGE_VERTEX_BIT,
+        .module = shaders_.vertex_shader->GetModule(),
+        .pName = "main",
+    };
+    shader_stages.push_back(vertex_stage);
+
+    VkPipelineShaderStageCreateInfo fragment_stage = {
+        .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+        .stage = VK_SHADER_STAGE_FRAGMENT_BIT,
+        .module = shaders_.fragment_shader->GetModule(),
+        .pName = "main",
+    };
+    shader_stages.push_back(fragment_stage);
+
+
     VkGraphicsPipelineCreateInfo pipeline_info = {
         .sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO,
         .pNext = &pipeline_rendering_info,
-        .stageCount = 2,
-        .pStages = nullptr, // TODO: implement this
+        .stageCount = static_cast<uint32_t>(shader_stages.size()),
+        .pStages = shader_stages.data(),
         .pInputAssemblyState = &assembly_info,
         .pViewportState = &viewport_info,
         .pRasterizationState = &rasterization_info,
