@@ -15,6 +15,7 @@ Device::Device(std::shared_ptr<Instance> instance, const VkSurfaceKHR surface) :
     // Request device extensions and features
     requested_device_extensions_.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
     requested_device_extensions_.push_back(VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME);
+    requested_device_extensions_.push_back(VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME);
 
     device_features_.samplerAnisotropy = VK_TRUE;
 
@@ -239,13 +240,19 @@ void Device::CreateLogicalDeviceAndQueues() {
         .pEnabledFeatures = &device_features_,
     };
 
-    // TODO: handle this better
     VkPhysicalDeviceSynchronization2Features sync_features = {
         .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SYNCHRONIZATION_2_FEATURES,
         .synchronization2 = VK_TRUE,
     };
 
-    device_info.pNext = &sync_features;
+    VkPhysicalDeviceDynamicRenderingFeaturesKHR dynamic_rendering_features = {
+        .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES_KHR,
+        .dynamicRendering = VK_TRUE,
+    };
+
+    // TODO: handle this pNext chain better
+    dynamic_rendering_features.pNext = &sync_features;
+    device_info.pNext = &dynamic_rendering_features;
 
 
     if (vkCreateDevice(physical_device_, &device_info, nullptr, &logical_device_) != VK_SUCCESS) {

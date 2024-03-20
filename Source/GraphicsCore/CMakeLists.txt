@@ -2,7 +2,6 @@ set(GRAPHICS_CORE_SRC
     Command.cpp
     Context.cpp
     Device.cpp
-    Framebuffer.cpp
     Instance.cpp
     Parameters.cpp
     Pipeline.cpp
