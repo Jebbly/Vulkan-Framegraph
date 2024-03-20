@@ -58,15 +58,11 @@ int main() {
 
     main_command.Begin(true);
     compute_pipeline.Bind(main_command);
-    main_command.Record([&](VkCommandBuffer command) {
-        VkDescriptorSet descriptor = descriptor_set->GetDescriptorSet();
-        vkCmdBindDescriptorSets(command, VK_PIPELINE_BIND_POINT_COMPUTE, compute_pipeline.GetPipelineLayout(), 0, 1, &descriptor, 0, nullptr);
-    });
+    compute_pipeline.BindDescriptorSet(main_command, 0, descriptor_set);
     compute_pipeline.DispatchCompute(main_command, num_elements, 1, 1);
     main_command.End();
 
     main_command.Submit(&compute_fence);
-
     compute_fence.Wait(100000);
 
     float* output_data = reinterpret_cast<float*>(output->MapToCPU());
