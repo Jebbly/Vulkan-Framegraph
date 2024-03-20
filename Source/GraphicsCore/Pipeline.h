@@ -6,7 +6,6 @@
 
 #include "Command.h"
 #include "Parameters.h"
-#include "RenderTargets.h"
 #include "Shader.h"
 
 template <typename Derived>
