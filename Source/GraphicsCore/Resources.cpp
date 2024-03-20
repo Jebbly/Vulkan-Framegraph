@@ -153,6 +153,7 @@ void Image::TransitionImage(CommandBuffer command_buffer, VkImageLayout old_layo
 
 ImageView::ImageView(std::shared_ptr<Device> device, std::shared_ptr<Image> image, ImageView::Lens view_lens) :
     device_{ device },
+    image_{ image },
     image_view_{ VK_NULL_HANDLE }
 {
     VkImageViewCreateInfo image_view_info = {

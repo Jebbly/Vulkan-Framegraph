@@ -71,9 +71,11 @@ public:
     ~ImageView();
 
     VkImageView GetImageView() const {return image_view_;}
+    inline const Image::Desc& GetImageDesc() const {return image_->GetImageDesc();}
 
 private:
     std::shared_ptr<Device> device_;
+    std::shared_ptr<Image> image_;
 
     VkImageView image_view_;
 };
