@@ -32,7 +32,7 @@
 *.app
 
 # Test GLSL files
-.glsl
+*.glsl
 
 # Build Directory
 Build
