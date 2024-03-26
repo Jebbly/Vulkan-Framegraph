@@ -10,3 +10,6 @@
 [submodule "External/Slang"]
 	path = External/Slang
 	url = https://github.com/shader-slang/slang.git
+[submodule "External/Spdlog"]
+	path = External/Spdlog
+	url = https://github.com/gabime/spdlog.git
