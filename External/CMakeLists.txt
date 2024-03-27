@@ -17,6 +17,9 @@ set(SLANG_SLANG_LLVM_FLAVOR DISABLE)
 set(SLANG_LIB_TYPE STATIC)
 add_subdirectory(Slang)
 
+# Spdlog
+add_subdirectory(Spdlog)
+
 # VulkanMemoryAllocator
 option(VMA_BUILD_DOCUMENTATION OFF)
 option(VMA_BUILD_SAMPLES OFF)
