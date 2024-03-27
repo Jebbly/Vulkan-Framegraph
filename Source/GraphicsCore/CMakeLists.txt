@@ -9,6 +9,7 @@ set(GRAPHICS_CORE_SRC
     Shader.cpp
     Swapchain.cpp
     Synchronization.cpp
+    Utility.cpp
     Window.cpp
 )
 
@@ -17,5 +18,5 @@ add_library(GraphicsCore STATIC ${GRAPHICS_CORE_SRC})
 target_compile_definitions(GraphicsCore PRIVATE SHADER_DIRECTORY="${CMAKE_SOURCE_DIR}/Shaders")
 
 # TODO: most libraries linked here should be private, but it's not clear which ones yet.
-target_link_libraries(GraphicsCore glfw Vulkan::Vulkan GPUOpen::VulkanMemoryAllocator slang)
+target_link_libraries(GraphicsCore glfw Vulkan::Vulkan GPUOpen::VulkanMemoryAllocator slang CoreUtility)
 add_dependencies(GraphicsCore slang-glslang)

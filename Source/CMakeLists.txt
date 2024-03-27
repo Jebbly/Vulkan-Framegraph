@@ -1,1 +1,2 @@
+add_subdirectory(CoreUtility)
 add_subdirectory(GraphicsCore)

@@ -1,10 +1,11 @@
 #include "Window.h"
 
 #include <assert.h>
-#include <iostream>
+
+#include "Utility.h"
 
 static void GLFWErrorCallback(int error, const char* description) {
-    std::cerr << "GLFW Error: " << description << std::endl;
+    LOG(LogVulkan, Logger::SeverityLevel::ERROR, "GLFW error - {0}", description);
 }
 
 Window::Window(const std::string& window_name, size_t width, size_t height) :

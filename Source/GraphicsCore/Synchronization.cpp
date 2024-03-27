@@ -1,6 +1,5 @@
 #include "Synchronization.h"
 
-#include <iostream>
 #include <stdexcept>
 
 Fence::Fence(std::shared_ptr<Device> device, bool start_signaled) :

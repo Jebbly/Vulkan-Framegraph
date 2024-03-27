@@ -1,6 +1,6 @@
 #include "Instance.h"
 
-#include <iostream>
+#include "Utility.h"
 
 Instance::Instance(const std::string& app_name,
                    const std::vector<std::string>& requested_validation_layers,
@@ -26,13 +26,10 @@ void Instance::RequestValidationLayers(const std::vector<std::string>& requested
     std::vector<VkLayerProperties> available_validation_layers(num_validation_layers);
     vkEnumerateInstanceLayerProperties(&num_validation_layers, available_validation_layers.data());
 
-#ifndef NDEBUG
-    std::cout << "Available Validation Layers:" << std::endl;
+    LOG(LogVulkan, Logger::SeverityLevel::INFO, "Available Validation Layers:");
     for (const VkLayerProperties& available_layer : available_validation_layers) {
-        std::cout << "\t" << available_layer.layerName << std::endl;
+        LOG(LogVulkan, Logger::SeverityLevel::INFO, "\t{0}", available_layer.layerName);
     }
-    std::cout << std::endl;
-#endif
 
     // Check that requested validation layers are available.
     // TODO: only check for layers that are optional.
@@ -53,13 +50,10 @@ void Instance::RequestValidationLayers(const std::vector<std::string>& requested
         }
     }
 
-#ifndef NDEBUG
-    std::cout << "Enabled Validation Layers: " << std::endl;
+    LOG(LogVulkan, Logger::SeverityLevel::INFO, "Enabled Validation Layers:");
     for (const char* enabled_layer : enabled_validation_layers_) {
-        std::cout << "\t" << enabled_layer << std::endl;
+        LOG(LogVulkan, Logger::SeverityLevel::INFO, "\t{0}", enabled_layer);
     }
-    std::cout << std::endl;
-#endif
 }
 
 void Instance::RequestInstanceExtensions(const std::vector<std::string>& requested_instance_extensions) {
@@ -68,13 +62,10 @@ void Instance::RequestInstanceExtensions(const std::vector<std::string>& request
     std::vector<VkExtensionProperties> available_extensions(num_instance_extensions);
     vkEnumerateInstanceExtensionProperties(nullptr, &num_instance_extensions, available_extensions.data());
 
-#ifndef NDEBUG
-    std::cout << "Available Instance Extensions:" << std::endl;
+    LOG(LogVulkan, Logger::SeverityLevel::INFO, "Available Instance Extensions:");
     for (const VkExtensionProperties& available_extension : available_extensions) {
-        std::cout << "\t" << available_extension.extensionName << std::endl;
+        LOG(LogVulkan, Logger::SeverityLevel::INFO, "\t{0}", available_extension.extensionName);
     }
-    std::cout << std::endl;
-#endif
 
     // Check that requested instance extensions are available.
     // TODO: only check for extensions that are optional.
@@ -95,13 +86,10 @@ void Instance::RequestInstanceExtensions(const std::vector<std::string>& request
         }
     }
 
-#ifndef NDEBUG
-    std::cout << "Enabled Instance Extensions: " << std::endl;
+    LOG(LogVulkan, Logger::SeverityLevel::INFO, "Enabled Instance Extensions:");
     for (const char* enabled_extension : enabled_instance_extensions_) {
-        std::cout << "\t" << enabled_extension << std::endl;
+        LOG(LogVulkan, Logger::SeverityLevel::INFO, "\t{0}", enabled_extension);
     }
-    std::cout << std::endl;
-#endif
 }
 
 void Instance::CreateInstance() {

@@ -2,9 +2,10 @@
 
 #include <assert.h>
 #include <functional>
-#include <iostream>
 #include <map>
 #include <optional>
+
+#include "Utility.h"
 
 Device::Device(std::shared_ptr<Instance> instance, const VkSurfaceKHR surface) :
     instance_{ instance },
@@ -42,15 +43,12 @@ void Device::SelectPhysicalDevice() {
 
     physical_device_ = available_physical_devices[0];
 
-#ifndef NDEBUG
-    std::cout << "Available Physical Devices:" << std::endl;
+    LOG(LogVulkan, Logger::SeverityLevel::INFO, "Available Physical Devices:");
     for (const VkPhysicalDevice& physical_device : available_physical_devices) {
         VkPhysicalDeviceProperties physical_device_properties;
         vkGetPhysicalDeviceProperties(physical_device, &physical_device_properties);
-        std::cout << "\t" << physical_device_properties.deviceName << std::endl;
+        LOG(LogVulkan, Logger::SeverityLevel::INFO, "\t{0}", physical_device_properties.deviceName);
     }
-    std::cout << std::endl;
-#endif
 
     for (const VkPhysicalDevice& physical_device : available_physical_devices) {
         VkPhysicalDeviceProperties physical_device_properties;
@@ -61,13 +59,10 @@ void Device::SelectPhysicalDevice() {
         }
     }
 
-#ifndef NDEBUG
-    std::cout << "Selected Physical Device:" << std::endl;
+    LOG(LogVulkan, Logger::SeverityLevel::INFO, "Selected Physical Device:");
     VkPhysicalDeviceProperties physical_device_properties;
     vkGetPhysicalDeviceProperties(physical_device_, &physical_device_properties);
-    std::cout << "\t" << physical_device_properties.deviceName << std::endl;
-    std::cout << std::endl;
-#endif
+    LOG(LogVulkan, Logger::SeverityLevel::INFO, "\t{0}", physical_device_properties.deviceName);
 }
 
 void Device::RequestDeviceExtensions() {
@@ -76,13 +71,10 @@ void Device::RequestDeviceExtensions() {
     std::vector<VkExtensionProperties> available_extensions(num_device_extensions);
     vkEnumerateDeviceExtensionProperties(physical_device_, nullptr, &num_device_extensions, available_extensions.data());
 
-#ifndef NDEBUG
-    std::cout << "Available Device Extensions:" << std::endl;
+    LOG(LogVulkan, Logger::SeverityLevel::INFO, "Available Device Extensions:");
     for (const VkExtensionProperties& available_extension : available_extensions) {
-        std::cout << "\t" << available_extension.extensionName << std::endl;
+        LOG(LogVulkan, Logger::SeverityLevel::INFO, "\t{0}", available_extension.extensionName);
     }
-    std::cout << std::endl;
-#endif
 
     // Check that requested device extensions are available.
     // TODO: only check for extensions that are optional.
@@ -103,13 +95,10 @@ void Device::RequestDeviceExtensions() {
         }
     }
 
-#ifndef NDEBUG
-    std::cout << "Enabled Device Extensions: " << std::endl;
+    LOG(LogVulkan, Logger::SeverityLevel::INFO, "Enabled Device Extensions:");
     for (const char* enabled_extension : enabled_device_extensions_) {
-        std::cout << "\t" << enabled_extension << std::endl;
+        LOG(LogVulkan, Logger::SeverityLevel::INFO, "\t{0}", enabled_extension);
     }
-    std::cout << std::endl;
-#endif
 }
 
 void Device::FindQueueFamilies(const VkSurfaceKHR surface) {

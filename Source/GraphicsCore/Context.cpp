@@ -1,7 +1,6 @@
 #include "Context.h"
 
 #include <assert.h>
-#include <iostream>
 
 Context::Context(const std::string& app_name, size_t width, size_t height) :
     app_name_{ app_name }

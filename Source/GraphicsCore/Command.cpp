@@ -1,6 +1,5 @@
 #include "Command.h"
 
-#include <iostream>
 #include <stdexcept>
 
 CommandBuffer::CommandBuffer(VkCommandBuffer command_buffer, const Device::Queue& queue) :
