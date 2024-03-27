@@ -28,5 +28,5 @@ Logger::Logger(const std::string& logger_name, SeverityLevel level) {
         }
     }
 
-    logger_->set_pattern("%^[%T] %n: %v%$");
+    logger_->set_pattern("%^[%T] [%n]:%$ %v");
 }
