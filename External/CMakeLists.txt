@@ -1,3 +1,9 @@
+# Assimp
+option(BUILD_SHARED_LIBS OFF)
+option(ASSIMP_INSTALL OFF)
+option(ASSIMP_BUILD_TESTS OFF)
+add_subdirectory(Assimp)
+
 # GLFW
 option(GLFW_BUILD_DOCS OFF)
 option(GLFW_BUILD_EXAMPLES OFF)
@@ -19,6 +25,10 @@ add_subdirectory(Slang)
 
 # Spdlog
 add_subdirectory(Spdlog)
+
+# STBImage
+add_library(stb_image INTERFACE)
+target_include_directories(stb_image INTERFACE STBImage)
 
 # VulkanMemoryAllocator
 option(VMA_BUILD_DOCUMENTATION OFF)

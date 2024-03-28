@@ -13,3 +13,6 @@
 [submodule "External/Spdlog"]
 	path = External/Spdlog
 	url = https://github.com/gabime/spdlog.git
+[submodule "External/Assimp"]
+	path = External/Assimp
+	url = https://github.com/assimp/assimp.git
