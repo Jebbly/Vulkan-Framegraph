@@ -2,6 +2,7 @@
 option(BUILD_SHARED_LIBS OFF)
 option(ASSIMP_INSTALL OFF)
 option(ASSIMP_BUILD_TESTS OFF)
+option(ASSIMP_INJECT_DEBUG_POSTFIX OFF)
 add_subdirectory(Assimp)
 
 # GLFW
