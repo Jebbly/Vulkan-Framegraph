@@ -18,3 +18,7 @@ DEFINE_LOGGER_EXTERN(LogVulkan);
             abort();                                                                                                    \
         }                                                                                                               \
     } while (0);
+
+extern PFN_vkCmdBeginRenderingKHR _vkCmdBeginRenderingKHR;
+extern PFN_vkCmdEndRenderingKHR _vkCmdEndRenderingKHR;
+

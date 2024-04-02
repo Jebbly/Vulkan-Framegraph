@@ -8,6 +8,16 @@
 #include "GraphicsCore/Shader.h"
 #include "GraphicsCore/Synchronization.h"
 
+std::shared_ptr<Buffer> CreateStorageBuffer(Allocator& allocator, uint32_t num_elements) {
+    return allocator.AllocateBuffer({
+        .buffer_size = num_elements * static_cast<uint32_t>(sizeof(float)),
+        .buffer_usage = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,
+        .resource_desc = {
+            .allocation_flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_RANDOM_BIT,
+        }
+    });
+}
+
 int main() {
     Context context{ "Vulkan Rendergraph", 1600, 900 };
     Allocator allocator{context.GetInstance(), context.GetDevice()};
@@ -21,19 +31,10 @@ int main() {
     ComputePipeline compute_pipeline{context.GetDevice(), compute_shader};
     
     const uint32_t num_elements = 100;
-    Buffer::Desc buffer_desc = {
-        .buffer_size = num_elements * sizeof(float),
-        .buffer_usage = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,
-    };
-
-    ResourceDesc memory_desc = {
-        .allocation_flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_RANDOM_BIT,
-        .memory_usage = VMA_MEMORY_USAGE_AUTO,
-    };
     
-    std::shared_ptr<Buffer> buffer1 = allocator.AllocateBuffer(buffer_desc, memory_desc);
-    std::shared_ptr<Buffer> buffer2 = allocator.AllocateBuffer(buffer_desc, memory_desc);
-    std::shared_ptr<Buffer> output = allocator.AllocateBuffer(buffer_desc, memory_desc);
+    std::shared_ptr<Buffer> buffer1 = CreateStorageBuffer(allocator, num_elements);
+    std::shared_ptr<Buffer> buffer2 = CreateStorageBuffer(allocator, num_elements);
+    std::shared_ptr<Buffer> output = CreateStorageBuffer(allocator, num_elements);
 
     float* data1 = reinterpret_cast<float*>(buffer1->MapToCPU());
     float* data2 = reinterpret_cast<float*>(buffer2->MapToCPU());
@@ -48,6 +49,13 @@ int main() {
 
     Fence compute_fence{ context.GetDevice(), false };
 
+    /*
+    auto parameters = graph.AllocParameters<HelloWorldComputeParameters>();
+    parameters->buffer1 = graph.ImportExternalBuffer(buffer1);
+    parameters->buffer2 = graph.ImportExternalBuffer(buffer2);
+    parameters->output = graph.ImportExternalBuffer(output);
+    */
+
     std::shared_ptr<DescriptorSetLayout> compute_layout = compute_shader->GetParameterLayouts().at(0);
     std::shared_ptr<DescriptorSet> descriptor_set = descriptor_pool.AllocateDescriptorSet(compute_layout);
 
@@ -55,6 +63,16 @@ int main() {
     descriptor_set->WriteBufferDescriptor(1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, buffer2, 0, num_elements * sizeof(float));
     descriptor_set->WriteBufferDescriptor(2, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, output, 0, num_elements * sizeof(float));
     descriptor_set->Update();
+
+    /*
+    graph.AddPass("HelloWorldCompute", parameters, [parameters, hello_world_compute](CommandBuffer command_buffer){
+        SetParameters(command_buffer, parameters); // this should handle writing descriptor sets
+        hello_world_compute.DispatchCompute(command_buffer, num_elements, 1, 1);
+    });
+
+    graph.Compile();
+    graph.Execute();
+    */
 
     main_command.Begin(true);
     compute_pipeline.Bind(main_command);

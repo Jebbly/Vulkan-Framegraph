@@ -1,5 +1,8 @@
 #include "Pipeline.h"
 
+#include <array>
+#include <GLM/glm.hpp>
+
 GraphicsPipeline::GraphicsPipeline(std::shared_ptr<Device> device, ShaderStages shaders, const AttachmentFormats& attachment_formats) :
     Pipeline{ device },
     shaders_{ shaders },
@@ -29,14 +32,59 @@ void GraphicsPipeline::CreatePipelineLayout() {
     vkCreatePipelineLayout(device_->GetLogicalDevice(), &pipeline_layout_info, nullptr, &pipeline_layout_);
 }
 
+// TODO: this should not be here...
+struct Vertex {
+    glm::vec3 position;
+    glm::vec3 color;
+    glm::vec2 tex_coord;
+};
+
 void GraphicsPipeline::CreatePipeline() {
-    // TODO: some of this should be configurable
+    // TODO: this should be handled through reflection...?
+    VkVertexInputBindingDescription binding_desc = {
+        .binding = 0,
+        .stride = sizeof(Vertex),
+        .inputRate = VK_VERTEX_INPUT_RATE_VERTEX,
+    };
+
+    std::array<VkVertexInputAttributeDescription, 3> attributes;
+
+    attributes[0] = {
+        .location = 0,
+        .binding = 0,
+        .format = VK_FORMAT_R32G32B32_SFLOAT,
+        .offset = offsetof(Vertex, position),
+    };
+
+    attributes[1] = {
+        .location = 1,
+        .binding = 0,
+        .format = VK_FORMAT_R32G32B32_SFLOAT,
+        .offset = offsetof(Vertex, color),
+    };
+
+    attributes[2] = {
+        .location = 2,
+        .binding = 0,
+        .format = VK_FORMAT_R32G32_SFLOAT,
+        .offset = offsetof(Vertex, tex_coord),
+    };
+
+    VkPipelineVertexInputStateCreateInfo vertex_info = {
+        .sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
+        .vertexBindingDescriptionCount = 1,
+        .pVertexBindingDescriptions = &binding_desc,
+        .vertexAttributeDescriptionCount = static_cast<uint32_t>(attributes.size()),
+        .pVertexAttributeDescriptions = attributes.data(),
+    };
+
     VkPipelineInputAssemblyStateCreateInfo assembly_info = {
         .sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,
         .topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
         .primitiveRestartEnable = VK_FALSE,
     };
 
+    // TODO: some of this should be configurable
     VkPipelineViewportStateCreateInfo viewport_info = {
         .sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO,
         .viewportCount = 1,
@@ -50,7 +98,7 @@ void GraphicsPipeline::CreatePipeline() {
         .depthClampEnable = VK_FALSE,
         .rasterizerDiscardEnable = VK_FALSE,
         .polygonMode = VK_POLYGON_MODE_FILL,
-        .cullMode = VK_CULL_MODE_BACK_BIT,
+        .cullMode = VK_CULL_MODE_NONE,
         .frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE,
         .depthBiasEnable = VK_FALSE,
         .lineWidth = 1.0f,
@@ -64,7 +112,7 @@ void GraphicsPipeline::CreatePipeline() {
 
     VkPipelineDepthStencilStateCreateInfo depth_stencil_info = {
         .sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO,
-        .depthTestEnable = VK_TRUE,
+        .depthTestEnable = VK_FALSE,
         .depthWriteEnable = VK_TRUE,
         .depthCompareOp = VK_COMPARE_OP_LESS,
         .depthBoundsTestEnable = VK_FALSE,
@@ -124,10 +172,11 @@ void GraphicsPipeline::CreatePipeline() {
 
 
     VkGraphicsPipelineCreateInfo pipeline_info = {
-        .sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO,
+        .sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
         .pNext = &pipeline_rendering_info,
         .stageCount = static_cast<uint32_t>(shader_stages.size()),
         .pStages = shader_stages.data(),
+        .pVertexInputState = &vertex_info,
         .pInputAssemblyState = &assembly_info,
         .pViewportState = &viewport_info,
         .pRasterizationState = &rasterization_info,

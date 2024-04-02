@@ -1,6 +1,9 @@
 #include "Shader.h"
 
+#include "Utility.h"
+
 #include <iostream>
+DEFINE_LOGGER(LogShaderCompiler, Logger::SeverityLevel::INFO);
 
 Shader::Shader(std::shared_ptr<Device> device, Slang::ComPtr<slang::IComponentType> program) :
     device_{ device },
@@ -38,15 +41,76 @@ Shader::~Shader() {
 
 void Shader::ExtractParameterLayouts(Slang::ComPtr<slang::IComponentType> program) {
     slang::ProgramLayout* layout = program->getLayout();
-    /*
+    uint32_t num_types = layout->getTypeParameterCount();
+    std::cout << "Type parameters" << std::endl;
+    for (uint32_t i = 0; i < num_types; i++) {
+        slang::TypeParameterReflection* type = layout->getTypeParameterByIndex(i);
+        std::cout << type->getName() << std::endl;
+    }
+    
     uint32_t num_parameters = layout->getParameterCount();
     
     for (uint32_t parameter_index = 0; parameter_index < num_parameters; parameter_index++) {
         slang::VariableLayoutReflection* variable = layout->getParameterByIndex(parameter_index);
-        std::cout << "set " << variable->getBindingSpace() << ", binding " << variable->getBindingIndex()
+        slang::ParameterCategory var_category = variable->getCategory();
+        unsigned index = variable->getBindingIndex();
+        unsigned space = variable->getBindingSpace() + variable->getOffset(static_cast<SlangParameterCategory>(var_category));
+        slang::TypeReflection::Kind kind = variable->getType()->getKind();
+        std::cout << "set " << space << ", binding " << index
             << ": " << variable->getType()->getName() << " " << variable->getName() << std::endl;
+
+        unsigned categoryCount = variable->getCategoryCount();
+        std::cout << "Category count: " << categoryCount << std::endl;
+        for (unsigned cc = 0; cc < categoryCount; cc++)
+        {
+            slang::ParameterCategory category = variable->getCategoryByIndex(cc);
+
+            size_t offsetForCategory = variable->getOffset(static_cast<SlangParameterCategory>(category));
+            size_t spaceForCategory = variable->getBindingSpace(static_cast<SlangParameterCategory>(category))
+                + variable->getOffset(SLANG_PARAMETER_CATEGORY_REGISTER_SPACE);
+
+            std::cout << "Offset: " << offsetForCategory << ", space: " << spaceForCategory << std::endl;
+        }
+
+        slang::TypeLayoutReflection* typeLayout = variable->getTypeLayout();
+        slang::TypeLayoutReflection* elementLayout = typeLayout->getElementTypeLayout();
+        uint32_t fields = elementLayout->getFieldCount();
+        for (unsigned ff = 0; ff < fields; ff++)
+        {
+            slang::VariableLayoutReflection* field = elementLayout->getFieldByIndex(ff);
+            std::cout << field->getType()->getName() << " " << field->getName() << std::endl;
+        }
     }
-    */
+    
+    SlangUInt entryPointCount = layout->getEntryPointCount();
+    for (SlangUInt ee = 0; ee < entryPointCount; ee++)
+    {
+        slang::EntryPointReflection* entry =
+            layout->getEntryPointByIndex(ee);
+        
+        std::cout << "Entry point: " << entry->getName() << ", Name Override: " << entry->getNameOverride() << std::endl;
+        SlangStage stage = entry->getStage();
+
+        SlangUInt threadGroupSize[3];
+        entry->getComputeThreadGroupSize(3, &threadGroupSize[0]);
+        std::cout << "Thread group size: " << threadGroupSize[0] << " " << threadGroupSize[1] << " " << threadGroupSize[2] << std::endl;
+
+        unsigned parameterCount = entry->getParameterCount();
+        for (unsigned pp = 0; pp < parameterCount; pp++)
+        {
+            slang::VariableLayoutReflection* parameter =
+                entry->getParameterByIndex(pp);
+
+            std::cout << "entry " << parameter->getType()->getName() << " " << parameter->getName() << std::endl;
+            slang::TypeLayoutReflection* type = parameter->getTypeLayout();
+            unsigned fieldCount = type->getFieldCount();
+            for (unsigned ff = 0; ff < fieldCount; ff++)
+            {
+                slang::VariableLayoutReflection* field = type->getFieldByIndex(ff);
+                std::cout << "Field: " << field->getType()->getName()  << " " << field->getName() << std::endl;
+            }
+        }
+    }
 
     // TODO: this is just a dummy implementation for the HelloWorldCompute example
     DescriptorSetLayout::BindingInfo binding_info = {

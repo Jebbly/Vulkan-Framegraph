@@ -6,11 +6,20 @@
 #include "Command.h"
 #include "Synchronization.h"
 
+struct ResourceDesc {
+    std::string debug_name = "";
+    VmaAllocationCreateFlags allocation_flags;
+    VmaMemoryUsage memory_usage = VMA_MEMORY_USAGE_AUTO;
+    VkSharingMode sharing_mode = VK_SHARING_MODE_EXCLUSIVE;
+    std::vector<uint32_t> queue_families;
+};
+
 class Buffer {
 public:
     struct Desc {
         uint32_t buffer_size;
         VkBufferUsageFlags buffer_usage;
+        ResourceDesc resource_desc;
     };
 
     friend class Allocator;
@@ -22,6 +31,9 @@ public:
 
     void* MapToCPU();
     void UnmapFromCPU();
+
+    //void CopyToBuffer(CommandBuffer command_buffer, std::shared_ptr<Buffer> other);
+    //void CopyToImage(CommandBuffer command_buffer, std::shared_ptr<Image> other);
 
 private:
     VkBuffer buffer_;
@@ -38,6 +50,7 @@ public:
         VkExtent3D image_extent;
         VkFormat image_format;
         VkImageUsageFlags image_usage;
+        ResourceDesc resource_desc;
     };
 
     friend class Allocator;
@@ -92,20 +105,13 @@ private:
     VkSampler sampler_;
 };
 
-struct ResourceDesc {
-    VmaAllocationCreateFlags allocation_flags;
-    VmaMemoryUsage memory_usage;
-    VkSharingMode sharing_mode;
-    std::vector<uint32_t> queue_families;
-};
-
 class Allocator {
 public:
     Allocator(std::shared_ptr<Instance> instance, std::shared_ptr<Device> device);
     ~Allocator();
 
-    std::shared_ptr<Buffer> AllocateBuffer(Buffer::Desc& buffer_desc, ResourceDesc resource_desc);
-    std::shared_ptr<Image> AllocateImage(Image::Desc& image_desc, ResourceDesc resource_desc);
+    std::shared_ptr<Buffer> AllocateBuffer(const Buffer::Desc& buffer_desc);
+    std::shared_ptr<Image> AllocateImage(const Image::Desc& image_desc);
 
 private:
     std::shared_ptr<Instance> instance_;

@@ -20,6 +20,7 @@ public:
     void Present(uint32_t image_index, const Semaphore& wait_semaphore);
 
     std::shared_ptr<Image> GetImage(uint32_t image_index) const {return images_.at(image_index);}
+    std::shared_ptr<ImageView> GetImageView(uint32_t image_index) const {return image_views_.at(image_index);}
 
 private:
     std::shared_ptr<Instance> instance_;

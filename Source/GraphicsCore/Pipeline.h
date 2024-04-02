@@ -53,9 +53,6 @@ protected:
         static_cast<Derived*>(this)->CreatePipelineLayout();
         static_cast<Derived*>(this)->CreatePipeline();
     }
-
-    virtual void CreatePipelineLayout() = 0;
-    virtual void CreatePipeline() = 0;
 };
 
 class GraphicsPipeline : public Pipeline<GraphicsPipeline> {
@@ -79,13 +76,12 @@ public:
 
     virtual inline VkPipelineBindPoint GetBindPoint() const override {return VK_PIPELINE_BIND_POINT_GRAPHICS;}
 
-protected:
-    virtual void CreatePipelineLayout() override;
-    virtual void CreatePipeline() override;
-
 private:
     ShaderStages shaders_;
     AttachmentFormats attachment_formats_;
+
+    void CreatePipelineLayout();
+    void CreatePipeline();
 };
 
 class ComputePipeline : public Pipeline<ComputePipeline> {
@@ -99,10 +95,9 @@ public:
 
     void DispatchCompute(CommandBuffer command_buffer, uint32_t group_width, uint32_t group_height, uint32_t group_depth);
 
-protected:
-    virtual void CreatePipelineLayout() override;
-    virtual void CreatePipeline() override;
-
 private:
     std::shared_ptr<Shader> compute_shader_;
+
+    void CreatePipelineLayout();
+    void CreatePipeline();
 };

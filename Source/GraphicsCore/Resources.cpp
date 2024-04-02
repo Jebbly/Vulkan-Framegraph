@@ -18,22 +18,22 @@ Allocator::~Allocator() {
     }
 }
 
-std::shared_ptr<Buffer> Allocator::AllocateBuffer(Buffer::Desc& buffer_desc, ResourceDesc resource_desc) {
+std::shared_ptr<Buffer> Allocator::AllocateBuffer(const Buffer::Desc& buffer_desc) {
     VkBufferCreateInfo buffer_info = {
         .sType  = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
         .size = buffer_desc.buffer_size,
         .usage = buffer_desc.buffer_usage,
     };
 
-    if (!resource_desc.queue_families.empty()) {
-        buffer_info.sharingMode = resource_desc.sharing_mode;
-        buffer_info.queueFamilyIndexCount = static_cast<uint32_t>(resource_desc.queue_families.size());
-        buffer_info.pQueueFamilyIndices = resource_desc.queue_families.data();
+    if (!buffer_desc.resource_desc.queue_families.empty()) {
+        buffer_info.sharingMode = buffer_desc.resource_desc.sharing_mode;
+        buffer_info.queueFamilyIndexCount = static_cast<uint32_t>(buffer_desc.resource_desc.queue_families.size());
+        buffer_info.pQueueFamilyIndices = buffer_desc.resource_desc.queue_families.data();
     }
 
     VmaAllocationCreateInfo alloc_create_info = {
-        .flags = resource_desc.allocation_flags,
-        .usage = resource_desc.memory_usage,
+        .flags = buffer_desc.resource_desc.allocation_flags,
+        .usage = buffer_desc.resource_desc.memory_usage,
     };
 
     std::shared_ptr<Buffer> new_buffer = std::make_shared<Buffer>(buffer_desc);
@@ -42,7 +42,7 @@ std::shared_ptr<Buffer> Allocator::AllocateBuffer(Buffer::Desc& buffer_desc, Res
     return new_buffer;
 }
 
-std::shared_ptr<Image> Allocator::AllocateImage(Image::Desc& image_desc, ResourceDesc resource_desc) {
+std::shared_ptr<Image> Allocator::AllocateImage(const Image::Desc& image_desc) {
     VkImageCreateInfo image_info = {
         .sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
         .imageType = VK_IMAGE_TYPE_2D,
@@ -55,15 +55,15 @@ std::shared_ptr<Image> Allocator::AllocateImage(Image::Desc& image_desc, Resourc
         .usage = image_desc.image_usage,
     };
 
-    if (!resource_desc.queue_families.empty()) {
-        image_info.sharingMode = resource_desc.sharing_mode;
-        image_info.queueFamilyIndexCount = static_cast<uint32_t>(resource_desc.queue_families.size());
-        image_info.pQueueFamilyIndices = resource_desc.queue_families.data();
+    if (!image_desc.resource_desc.queue_families.empty()) {
+        image_info.sharingMode = image_desc.resource_desc.sharing_mode;
+        image_info.queueFamilyIndexCount = static_cast<uint32_t>(image_desc.resource_desc.queue_families.size());
+        image_info.pQueueFamilyIndices = image_desc.resource_desc.queue_families.data();
     }
 
     VmaAllocationCreateInfo alloc_create_info = {
-        .usage = resource_desc.memory_usage,
-        .requiredFlags = resource_desc.allocation_flags,
+        .flags = image_desc.resource_desc.allocation_flags,
+        .usage = image_desc.resource_desc.memory_usage,
     };
 
     std::shared_ptr<Image> new_image = std::make_shared<Image>(image_desc);

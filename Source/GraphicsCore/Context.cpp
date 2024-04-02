@@ -1,6 +1,11 @@
 #include "Context.h"
 
+#include "Utility.h"
+
 #include <assert.h>
+
+PFN_vkCmdBeginRenderingKHR _vkCmdBeginRenderingKHR;
+PFN_vkCmdEndRenderingKHR _vkCmdEndRenderingKHR;
 
 Context::Context(const std::string& app_name, size_t width, size_t height) :
     app_name_{ app_name }
@@ -45,4 +50,8 @@ Context::Context(const std::string& app_name, size_t width, size_t height) :
     vkDestroySurfaceKHR(instance_->GetInstance(), surface, nullptr);
 
     swapchain_ = std::make_shared<Swapchain>(instance_, device_, window_);
+
+    // Load functions here
+    _vkCmdBeginRenderingKHR = reinterpret_cast<PFN_vkCmdBeginRenderingKHR>(vkGetDeviceProcAddr(device_->GetLogicalDevice(), "vkCmdBeginRenderingKHR"));
+    _vkCmdEndRenderingKHR = reinterpret_cast<PFN_vkCmdEndRenderingKHR>(vkGetDeviceProcAddr(device_->GetLogicalDevice(), "vkCmdEndRenderingKHR"));
 }
