@@ -1,5 +1,5 @@
-# Vulkan-Rendergraph
-A playground for fast Vulkan experimentation!
+# Vulkan Framegraph
+A WIP playground for fast Vulkan experimentation!
 
 ## Getting Started
 
